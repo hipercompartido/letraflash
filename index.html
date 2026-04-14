@@ -2,7 +2,12 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <!-- 🔥 Meta viewport optimizado: sin zoom, escala inicial 1 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+  <!-- 📱 Permite instalar como PWA -->
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="theme-color" content="#121212"/>
   <title>LetraFlash 🎮</title>
   <style>
     :root {
@@ -14,32 +19,49 @@
       --used: #333;
       --success: #69f0ae;
       --danger: #ff5252;
+      --safe-top: env(safe-area-inset-top);
+      --safe-bottom: env(safe-area-inset-bottom);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    /* 🔥 Desactivar zoom y selección */
+    html, body {
+      overscroll-behavior: none;
+      touch-action: manipulation; /* 👈 Clave: permite scroll pero no zoom */
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    
     body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
+      min-height: 100dvh; /* 👈 Dynamic viewport height para móviles */
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 16px;
-      user-select: none;
+      padding: calc(8px + var(--safe-top)) calc(16px) calc(8px + var(--safe-bottom)) calc(16px);
       -webkit-tap-highlight-color: transparent;
     }
+    
     header {
       width: 100%;
       max-width: 500px;
       background: linear-gradient(135deg, var(--accent), #e65100);
-      padding: 20px;
+      padding: calc(16px + var(--safe-top)) 20px 20px;
       border-radius: 0 0 24px 24px;
       text-align: center;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
       box-shadow: 0 4px 20px rgba(255,152,0,0.3);
+      flex-shrink: 0;
     }
-    header small { color: rgba(0,0,0,0.7); font-weight: 600; font-size: 14px; }
-    header h1 { font-size: 28px; margin-top: 4px; color: #000; }
+    header small { color: rgba(0,0,0,0.7); font-weight: 600; font-size: 13px; display: block; }
+    header h1 { font-size: clamp(24px, 6vw, 28px); margin-top: 4px; color: #000; line-height: 1.2; }
     
     .stats {
       display: flex;
@@ -47,15 +69,16 @@
       align-items: center;
       width: 100%;
       max-width: 500px;
-      margin: 8px 0 16px;
+      margin: 4px 0 12px;
+      flex-shrink: 0;
     }
     .stat { text-align: center; }
-    .stat-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; }
-    .stat-value { font-size: 22px; font-weight: bold; }
+    .stat-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-value { font-size: clamp(18px, 4.5vw, 22px); font-weight: bold; }
     
     .timer {
-      width: 72px;
-      height: 72px;
+      width: clamp(64px, 15vw, 72px);
+      height: clamp(64px, 15vw, 72px);
       border-radius: 50%;
       background: conic-gradient(var(--success) 0deg, var(--success) 0deg, #333 0deg);
       display: flex;
@@ -63,18 +86,19 @@
       justify-content: center;
       position: relative;
       transition: background 0.3s, transform 0.1s;
+      flex-shrink: 0;
     }
     .timer::before {
       content: '';
       position: absolute;
-      width: 60px;
-      height: 60px;
+      width: 85%;
+      height: 85%;
       background: var(--bg);
       border-radius: 50%;
     }
     .timer span {
       position: relative;
-      font-size: 24px;
+      font-size: clamp(20px, 5vw, 24px);
       font-weight: bold;
       z-index: 1;
     }
@@ -84,26 +108,30 @@
     .grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
+      gap: clamp(8px, 2.5vw, 12px);
       width: 100%;
       max-width: 500px;
       flex: 1;
+      min-height: 0; /* 👈 Importante para scroll interno si fuera necesario */
+      padding: 4px 0;
     }
+    
     .tile {
       aspect-ratio: 1;
       background: linear-gradient(135deg, #2a2a2a, #1e1e1e);
       border: 2px solid rgba(255,152,0,0.5);
-      border-radius: 16px;
+      border-radius: clamp(12px, 3vw, 16px);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 26px;
+      font-size: clamp(20px, 5.5vw, 26px);
       font-weight: 800;
       cursor: pointer;
       transition: all 0.12s ease;
       box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       position: relative;
       overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
     }
     .tile::after {
       content: '';
@@ -113,8 +141,6 @@
       opacity: 0;
       transition: opacity 0.2s;
     }
-    .tile:hover { transform: translateY(-2px); border-color: var(--accent); }
-    .tile:hover::after { opacity: 1; }
     .tile:active { transform: scale(0.93); }
     .tile.pressed { animation: pop 0.2s; }
     @keyframes pop { 0% { transform: scale(0.93); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
@@ -132,30 +158,31 @@
     .btn-start {
       width: 100%;
       max-width: 500px;
-      padding: 16px;
+      padding: clamp(14px, 4vw, 16px);
       background: var(--success);
       color: #000;
       border: none;
-      border-radius: 16px;
-      font-size: 18px;
+      border-radius: clamp(14px, 3.5vw, 16px);
+      font-size: clamp(16px, 4.5vw, 18px);
       font-weight: bold;
       cursor: pointer;
-      margin: 24px 0;
+      margin: clamp(16px, 4vw, 24px) 0;
       transition: transform 0.1s, box-shadow 0.2s;
+      flex-shrink: 0;
     }
-    .btn-start:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(105,240,174,0.4); }
     .btn-start:active { transform: scale(0.98); }
     
     /* Modal */
     .modal {
       display: none;
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
+      inset: 0;
       background: rgba(0,0,0,0.85);
       align-items: center;
       justify-content: center;
       z-index: 100;
       padding: 20px;
+      touch-action: manipulation;
     }
     .modal.active { display: flex; }
     .modal-content {
@@ -167,17 +194,18 @@
       text-align: center;
       border: 2px solid var(--accent);
       animation: modalIn 0.3s ease-out;
+      touch-action: manipulation;
     }
     @keyframes modalIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    .modal h2 { font-size: 32px; margin-bottom: 12px; }
-    .modal p { color: var(--text-dim); margin: 8px 0; }
+    .modal h2 { font-size: clamp(28px, 7vw, 32px); margin-bottom: 12px; }
+    .modal p { color: var(--text-dim); margin: 8px 0; font-size: clamp(14px, 3.5vw, 16px); }
     .score-box {
       background: rgba(255,152,0,0.15);
       padding: 16px;
       border-radius: 12px;
       margin: 16px 0;
     }
-    .score-box .big { font-size: 42px; font-weight: bold; display: block; }
+    .score-box .big { font-size: clamp(36px, 9vw, 42px); font-weight: bold; display: block; }
     .modal-actions { display: flex; gap: 8px; margin-top: 16px; }
     .modal-actions button {
       flex: 1;
@@ -186,14 +214,26 @@
       border-radius: 10px;
       font-weight: bold;
       cursor: pointer;
+      font-size: clamp(14px, 3.5vw, 16px);
+      touch-action: manipulation;
     }
     .btn-restart { background: var(--accent); color: #000; }
     .btn-close { background: #444; color: #fff; }
     
-    @media (max-width: 400px) {
-      .grid { grid-template-columns: repeat(4, 1fr); gap: 8px; }
-      .tile { font-size: 22px; border-radius: 12px; }
-      header h1 { font-size: 24px; }
+    /* 👇 Ajustes para pantallas muy pequeñas */
+    @media (max-height: 600px) {
+      body { padding-top: calc(4px + var(--safe-top)); }
+      header { padding-top: calc(12px + var(--safe-top)); margin-bottom: 8px; }
+      .stats { margin: 2px 0 8px; }
+      .grid { gap: 6px; }
+      .tile { font-size: clamp(18px, 5vw, 22px); border-radius: 12px; }
+      .btn-start { margin: 12px 0; padding: 12px; }
+    }
+    
+    @media (max-width: 320px) {
+      .grid { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+      .tile { font-size: 18px; }
+      header h1 { font-size: 20px; }
     }
   </style>
 </head>
@@ -248,7 +288,34 @@
     ];
     const TIEMPO_TOTAL = 5;
 
-    // 🎵 MOTOR DE AUDIO (Web Audio API - sin archivos externos)
+    // 🔥 WAKE LOCK: Mantener pantalla encendida
+    let wakeLock = null;
+    async function solicitarWakeLock() {
+      if ('wakeLock' in navigator) {
+        try {
+          wakeLock = await navigator.wakeLock.request('screen');
+          wakeLock.addEventListener('release', () => {
+            //console.log('Wake Lock liberado');
+          });
+        } catch (err) {
+          //console.log(`${err.name}, ${err.message}`);
+        }
+      }
+    }
+    async function liberarWakeLock() {
+      if (wakeLock) {
+        await wakeLock.release();
+        wakeLock = null;
+      }
+    }
+    // Re-solicitar si la página vuelve a estar visible
+    document.addEventListener('visibilitychange', async () => {
+      if (wakeLock !== null && document.visibilityState === 'visible') {
+        await solicitarWakeLock();
+      }
+    });
+
+    // 🎵 MOTOR DE AUDIO
     let audioCtx = null;
     function initAudio() {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -313,6 +380,7 @@
         tile.textContent = letra;
         tile.dataset.letra = letra;
         tile.onclick = () => presionarLetra(letra);
+        tile.ontouchstart = (e) => { e.preventDefault(); presionarLetra(letra); }; // 👈 Mejor respuesta táctil
         grid.appendChild(tile);
       });
     }
@@ -324,8 +392,9 @@
       });
     }
 
-    function iniciarJuego() {
-      initAudio(); // Activa el contexto de audio con interacción del usuario
+    async function iniciarJuego() {
+      initAudio();
+      await solicitarWakeLock(); // 🔥 Mantener pantalla encendida
       SFX.start();
       letrasUsadas = [];
       puntaje = 0;
@@ -374,17 +443,19 @@
       scoreEl.textContent = puntaje;
       actualizarTablero();
       
-      // Efecto visual en la ficha
       const tile = document.querySelector(`.tile[data-letra="${letra}"]`);
-      tile.classList.add('pressed');
-      setTimeout(() => tile.classList.remove('pressed'), 200);
+      if (tile) {
+        tile.classList.add('pressed');
+        setTimeout(() => tile.classList.remove('pressed'), 200);
+      }
       
       reiniciarTemporizador();
     }
 
-    function finalizarJuego() {
+    async function finalizarJuego() {
       clearInterval(timerInterval);
       juegoActivo = false;
+      await liberarWakeLock(); // 🔥 Liberar wake lock al terminar
       SFX.boom();
       if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
       
@@ -413,12 +484,32 @@
       iniciarJuego();
     }
 
-    // Soporte teclado
+    // Soporte teclado + prevenir comportamientos por defecto en móvil
     document.addEventListener('keydown', (e) => {
       if (!juegoActivo) return;
       const letra = e.key.toUpperCase();
       if (ABECEDARIO.includes(letra)) presionarLetra(letra);
     });
+    
+    // 👇 Prevenir zoom por doble-tap en iOS
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', function (event) {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) {
+        event.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, false);
+    
+    // Prevenir gestos de navegación (swipe atrás/adelante)
+    document.addEventListener('touchmove', (e) => {
+      if (juegoActivo) {
+        // Permitir scroll solo si no es en el grid
+        if (!e.target.closest('.grid')) {
+          e.preventDefault();
+        }
+      }
+    }, { passive: false });
   </script>
 </body>
 </html>
