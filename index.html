@@ -2,7 +2,10 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="theme-color" content="#121212"/>
   <title>LetraFlash 🎮</title>
   <style>
     :root {
@@ -14,67 +17,224 @@
       --used: #333;
       --success: #69f0ae;
       --danger: #ff5252;
+      --player1: #4fc3f7;
+      --player2: #f06292;
+      --player3: #aed581;
+      --player4: #ffb74d;
+      --safe-top: env(safe-area-inset-top);
+      --safe-bottom: env(safe-area-inset-bottom);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      overscroll-behavior: none;
+      touch-action: manipulation;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
     body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 16px;
-      user-select: none;
+      padding: calc(8px + var(--safe-top)) calc(16px) calc(8px + var(--safe-bottom)) calc(16px);
       -webkit-tap-highlight-color: transparent;
     }
-    header {
+    
+    /* 🔀 PANTALLA DE CONFIGURACIÓN */
+    .setup-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       width: 100%;
       max-width: 500px;
-      background: linear-gradient(135deg, var(--accent), #e65100);
-      padding: 20px;
-      border-radius: 0 0 24px 24px;
-      text-align: center;
-      margin-bottom: 16px;
-      box-shadow: 0 4px 20px rgba(255,152,0,0.3);
+      padding: 20px 0;
     }
-    header small { color: rgba(0,0,0,0.7); font-weight: 600; font-size: 14px; }
-    header h1 { font-size: 28px; margin-top: 4px; color: #000; }
+    .setup-screen.hidden { display: none !important; }
+    
+    .setup-title {
+      font-size: clamp(24px, 6vw, 28px);
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .player-input {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      margin-bottom: 16px;
+    }
+    .player-input input {
+      flex: 1;
+      padding: 14px 16px;
+      border: 2px solid var(--accent);
+      border-radius: 12px;
+      background: var(--card);
+      color: var(--text);
+      font-size: 16px;
+      outline: none;
+    }
+    .player-input input::placeholder { color: var(--text-dim); }
+    .player-input button {
+      padding: 14px 20px;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 12px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    
+    .players-list {
+      width: 100%;
+      margin-bottom: 20px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .player-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: var(--card);
+      border-radius: 10px;
+      margin-bottom: 8px;
+      animation: slideIn 0.2s ease;
+    }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+    .player-item .name { font-weight: 500; }
+    .player-item .remove {
+      background: var(--danger);
+      color: white;
+      border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+    }
+    
+    .mode-toggle {
+      display: flex;
+      background: var(--card);
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 24px;
+      width: 100%;
+    }
+    .mode-toggle button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      background: transparent;
+      color: var(--text-dim);
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .mode-toggle button.active {
+      background: var(--accent);
+      color: #000;
+    }
+    
+    .btn-start-setup {
+      width: 100%;
+      padding: 16px;
+      background: var(--success);
+      color: #000;
+      border: none;
+      border-radius: 16px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .btn-start-setup:disabled {
+      background: var(--used);
+      color: var(--text-dim);
+      cursor: not-allowed;
+    }
+    
+    /* 🎮 PANTALLA DE JUEGO */
+    .game-screen { display: none; width: 100%; max-width: 500px; }
+    .game-screen.active { display: flex; flex-direction: column; align-items: center; }
+    
+    /* Turn indicator */
+    .turn-banner {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent), #e65100);
+      padding: 12px 20px;
+      border-radius: 0 0 20px 20px;
+      text-align: center;
+      margin-bottom: 12px;
+      animation: pulseBanner 2s infinite;
+    }
+    @keyframes pulseBanner { 0%, 100% { opacity: 1; } 50% { opacity: 0.9; } }
+    .turn-banner small { color: rgba(0,0,0,0.7); font-weight: 600; font-size: 13px; display: block; }
+    .turn-banner .player-name { 
+      font-size: clamp(20px, 5vw, 26px); 
+      font-weight: 900; 
+      color: #000;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.3);
+    }
+    .turn-banner .player-score {
+      font-size: 14px;
+      color: rgba(0,0,0,0.8);
+      margin-top: 2px;
+    }
+    
+    header {
+      width: 100%;
+      background: var(--card);
+      padding: 16px 20px;
+      border-radius: 16px;
+      text-align: center;
+      margin-bottom: 12px;
+      border: 2px solid rgba(255,152,0,0.3);
+    }
+    header small { color: var(--text-dim); font-weight: 600; font-size: 13px; display: block; }
+    header h1 { font-size: clamp(22px, 5.5vw, 26px); margin-top: 4px; line-height: 1.2; }
     
     .stats {
       display: flex;
       justify-content: space-around;
       align-items: center;
       width: 100%;
-      max-width: 500px;
-      margin: 8px 0 16px;
+      margin: 4px 0 12px;
     }
     .stat { text-align: center; }
-    .stat-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; }
-    .stat-value { font-size: 22px; font-weight: bold; }
+    .stat-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; }
+    .stat-value { font-size: clamp(18px, 4.5vw, 22px); font-weight: bold; }
     
     .timer {
-      width: 72px;
-      height: 72px;
+      width: clamp(64px, 15vw, 72px);
+      height: clamp(64px, 15vw, 72px);
       border-radius: 50%;
       background: conic-gradient(var(--success) 0deg, var(--success) 0deg, #333 0deg);
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
-      transition: background 0.3s, transform 0.1s;
+      transition: background 0.3s;
     }
     .timer::before {
       content: '';
       position: absolute;
-      width: 60px;
-      height: 60px;
+      width: 85%;
+      height: 85%;
       background: var(--bg);
       border-radius: 50%;
     }
     .timer span {
       position: relative;
-      font-size: 24px;
+      font-size: clamp(20px, 5vw, 24px);
       font-weight: bold;
       z-index: 1;
     }
@@ -84,20 +244,21 @@
     .grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
+      gap: clamp(8px, 2.5vw, 12px);
       width: 100%;
-      max-width: 500px;
       flex: 1;
+      min-height: 0;
+      padding: 4px 0;
     }
     .tile {
       aspect-ratio: 1;
       background: linear-gradient(135deg, #2a2a2a, #1e1e1e);
       border: 2px solid rgba(255,152,0,0.5);
-      border-radius: 16px;
+      border-radius: clamp(12px, 3vw, 16px);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 26px;
+      font-size: clamp(20px, 5.5vw, 26px);
       font-weight: 800;
       cursor: pointer;
       transition: all 0.12s ease;
@@ -105,20 +266,9 @@
       position: relative;
       overflow: hidden;
     }
-    .tile::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at center, rgba(255,152,0,0.3), transparent 70%);
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-    .tile:hover { transform: translateY(-2px); border-color: var(--accent); }
-    .tile:hover::after { opacity: 1; }
     .tile:active { transform: scale(0.93); }
     .tile.pressed { animation: pop 0.2s; }
     @keyframes pop { 0% { transform: scale(0.93); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-    
     .tile.used {
       background: var(--used);
       border-color: #444;
@@ -129,9 +279,66 @@
       box-shadow: none;
     }
     
-    .btn-start {
+    .btn-end-turn {
       width: 100%;
-      max-width: 500px;
+      padding: clamp(14px, 4vw, 16px);
+      background: var(--danger);
+      color: white;
+      border: none;
+      border-radius: clamp(14px, 3.5vw, 16px);
+      font-size: clamp(16px, 4.5vw, 18px);
+      font-weight: bold;
+      cursor: pointer;
+      margin: clamp(16px, 4vw, 24px) 0;
+    }
+    
+    /* 🏆 PANTALLA DE RESULTADOS */
+    .results-screen { display: none; width: 100%; max-width: 500px; flex-direction: column; align-items: center; }
+    .results-screen.active { display: flex; }
+    
+    .results-title {
+      font-size: clamp(24px, 6vw, 32px);
+      font-weight: bold;
+      margin: 20px 0;
+      text-align: center;
+    }
+    
+    .ranking {
+      width: 100%;
+      background: var(--card);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+    .ranking-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .ranking-item:last-child { border-bottom: none; }
+    .ranking-item .rank {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #000;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+    .ranking-item .rank.gold { background: #ffd700; }
+    .ranking-item .rank.silver { background: #c0c0c0; }
+    .ranking-item .rank.bronze { background: #cd7f32; }
+    .ranking-item .player { flex: 1; font-weight: 500; }
+    .ranking-item .score { font-weight: bold; font-size: 18px; }
+    
+    .btn-new-game {
+      width: 100%;
       padding: 16px;
       background: var(--success);
       color: #000;
@@ -140,17 +347,24 @@
       font-size: 18px;
       font-weight: bold;
       cursor: pointer;
-      margin: 24px 0;
-      transition: transform 0.1s, box-shadow 0.2s;
+      margin-bottom: 12px;
     }
-    .btn-start:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(105,240,174,0.4); }
-    .btn-start:active { transform: scale(0.98); }
+    .btn-back-setup {
+      width: 100%;
+      padding: 14px;
+      background: transparent;
+      color: var(--text-dim);
+      border: 2px solid var(--text-dim);
+      border-radius: 14px;
+      font-size: 16px;
+      cursor: pointer;
+    }
     
-    /* Modal */
+    /* Modal de fin de ronda */
     .modal {
       display: none;
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
+      inset: 0;
       background: rgba(0,0,0,0.85);
       align-items: center;
       justify-content: center;
@@ -169,15 +383,13 @@
       animation: modalIn 0.3s ease-out;
     }
     @keyframes modalIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    .modal h2 { font-size: 32px; margin-bottom: 12px; }
-    .modal p { color: var(--text-dim); margin: 8px 0; }
-    .score-box {
-      background: rgba(255,152,0,0.15);
-      padding: 16px;
-      border-radius: 12px;
-      margin: 16px 0;
+    .modal h2 { font-size: clamp(24px, 6vw, 28px); margin-bottom: 8px; }
+    .modal .next-player {
+      font-size: clamp(20px, 5vw, 24px);
+      font-weight: bold;
+      color: var(--accent);
+      margin: 12px 0;
     }
-    .score-box .big { font-size: 42px; font-weight: bold; display: block; }
     .modal-actions { display: flex; gap: 8px; margin-top: 16px; }
     .modal-actions button {
       flex: 1;
@@ -187,54 +399,93 @@
       font-weight: bold;
       cursor: pointer;
     }
-    .btn-restart { background: var(--accent); color: #000; }
-    .btn-close { background: #444; color: #fff; }
+    .btn-next { background: var(--accent); color: #000; }
+    .btn-end-game { background: var(--danger); color: white; }
     
-    @media (max-width: 400px) {
-      .grid { grid-template-columns: repeat(4, 1fr); gap: 8px; }
-      .tile { font-size: 22px; border-radius: 12px; }
-      header h1 { font-size: 24px; }
+    @media (max-height: 600px) {
+      body { padding-top: calc(4px + var(--safe-top)); }
+      .turn-banner { padding: 10px 16px; margin-bottom: 8px; }
+      .grid { gap: 6px; }
+      .tile { font-size: clamp(18px, 5vw, 22px); border-radius: 12px; }
     }
   </style>
 </head>
 <body>
-  <header>
-    <small>🎯 TEMÁTICA</small>
-    <h1 id="categoria">¡LISTOS?</h1>
-  </header>
-
-  <div class="stats">
-    <div class="stat">
-      <div class="stat-label">Letras</div>
-      <div class="stat-value" id="score">0</div>
+  
+  <!-- 🔀 PANTALLA DE CONFIGURACIÓN -->
+  <div class="setup-screen" id="setupScreen">
+    <div class="setup-title">🎮 LetraFlash<br><small style="font-size:14px;color:var(--text-dim);font-weight:normal">Multijugador</small></div>
+    
+    <div class="player-input">
+      <input type="text" id="playerNameInput" placeholder="Nombre del jugador" maxlength="15" />
+      <button onclick="agregarJugador()">+</button>
     </div>
     
-    <div class="timer" id="timer">
-      <span id="timer-text">5</span>
+    <div class="players-list" id="playersList">
+      <!-- Jugadores se agregan aquí -->
     </div>
     
-    <div class="stat">
-      <div class="stat-label">Récord</div>
-      <div class="stat-value" id="record">0</div>
+    <div class="mode-toggle">
+      <button id="modeRandom" class="active" onclick="setModo('random')">🎲 Aleatorio</button>
+      <button id="modeSequential" onclick="setModo('sequential')">🔢 Secuencial</button>
     </div>
+    
+    <button class="btn-start-setup" id="btnStartSetup" onclick="iniciarPartida()" disabled>
+      ▶️ COMENZAR PARTIDA
+    </button>
   </div>
-
-  <div class="grid" id="grid"></div>
-
-  <button class="btn-start" id="btnStart" onclick="iniciarJuego()">▶️ INICIAR JUEGO</button>
-
+  
+  <!-- 🎮 PANTALLA DE JUEGO -->
+  <div class="game-screen" id="gameScreen">
+    <div class="turn-banner">
+      <small>🎯 TURNO DE</small>
+      <div class="player-name" id="turnPlayerName">Jugador</div>
+      <div class="player-score" id="turnPlayerScore">Puntaje: 0</div>
+    </div>
+    
+    <header>
+      <small>🎲 TEMÁTICA</small>
+      <h1 id="categoria">¡LISTOS?</h1>
+    </header>
+    
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-label">Letras</div>
+        <div class="stat-value" id="score">0</div>
+      </div>
+      <div class="timer" id="timer"><span id="timer-text">5</span></div>
+      <div class="stat">
+        <div class="stat-label">Ronda</div>
+        <div class="stat-value" id="roundNum">1</div>
+      </div>
+    </div>
+    
+    <div class="grid" id="grid"></div>
+    
+    <button class="btn-end-turn" id="btnEndTurn" onclick="finalizarTurnoManual()">⏭️ PASAR TURNO</button>
+  </div>
+  
+  <!-- 🏆 PANTALLA DE RESULTADOS -->
+  <div class="results-screen" id="resultsScreen">
+    <div class="results-title">🏆 RESULTADOS FINALES</div>
+    
+    <div class="ranking" id="rankingList">
+      <!-- Ranking se genera aquí -->
+    </div>
+    
+    <button class="btn-new-game" onclick="volverSetup()">🔄 NUEVA PARTIDA</button>
+    <button class="btn-back-setup" onclick="volverSetup()">⚙️ Cambiar jugadores</button>
+  </div>
+  
+  <!-- Modal: Fin de ronda / Cambio de turno -->
   <div class="modal" id="modal">
     <div class="modal-content">
       <h2>¡BOOM! 💥</h2>
-      <p>Se acabó el tiempo ⏱️</p>
-      <div class="score-box">
-        <span class="stat-label">Tu puntaje</span>
-        <span class="big" id="finalScore">0 ✨</span>
-        <span id="recordMsg" style="color:#69f0ae;font-weight:bold;display:none;">🎉 ¡Nuevo récord!</span>
-      </div>
+      <p id="modalMessage">Se acabó el tiempo</p>
+      <div class="next-player" id="nextPlayerDisplay"></div>
       <div class="modal-actions">
-        <button class="btn-close" onclick="cerrarModal()">Salir</button>
-        <button class="btn-restart" onclick="reiniciarDesdeModal()">Jugar otra vez</button>
+        <button class="btn-end-game" onclick="finalizarPartida()">🏁 Terminar</button>
+        <button class="btn-next" id="btnNextTurn" onclick="siguienteTurno()">Siguiente ➡️</button>
       </div>
     </div>
   </div>
@@ -247,8 +498,10 @@
       "COLORES", "OBJETOS DE COCINA", "NOMBRES", "DEPORTES", "CANTANTES"
     ];
     const TIEMPO_TOTAL = 5;
+    const MIN_JUGADORES = 2;
+    const MAX_JUGADORES = 6;
 
-    // 🎵 MOTOR DE AUDIO (Web Audio API - sin archivos externos)
+    // 🎵 AUDIO
     let audioCtx = null;
     function initAudio() {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -262,48 +515,194 @@
       osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
       gain.gain.setValueAtTime(vol, audioCtx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + duration);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(); osc.stop(audioCtx.currentTime + duration);
     }
     const SFX = {
       tick: () => playTone(800, 'square', 0.04, 0.05),
       tickAlert: () => playTone(1000, 'square', 0.03, 0.08),
-      success: () => {
-        playTone(523.25, 'sine', 0.1, 0.15);
-        setTimeout(() => playTone(659.25, 'sine', 0.12, 0.15), 60);
-      },
+      success: () => { playTone(523.25, 'sine', 0.1, 0.15); setTimeout(() => playTone(659.25, 'sine', 0.12, 0.15), 60); },
       boom: () => playTone(150, 'sawtooth', 0.4, 0.25),
-      start: () => {
-        playTone(440, 'sine', 0.1, 0.1);
-        setTimeout(() => playTone(554, 'sine', 0.1, 0.1), 100);
-        setTimeout(() => playTone(659, 'sine', 0.15, 0.1), 200);
-      }
+      start: () => { playTone(440, 'sine', 0.1, 0.1); setTimeout(() => playTone(554, 'sine', 0.1, 0.1), 100); setTimeout(() => playTone(659, 'sine', 0.15, 0.1), 200); },
+      nextTurn: () => { playTone(300, 'sine', 0.15, 0.1); setTimeout(() => playTone(400, 'sine', 0.15, 0.1), 100); }
     };
 
-    // 🎮 ESTADO
-    let letrasUsadas = [];
-    let categoriaActual = "¡LISTOS?";
-    let tiempoRestante = TIEMPO_TOTAL;
+    // 🔥 WAKE LOCK
+    let wakeLock = null;
+    async function solicitarWakeLock() {
+      if ('wakeLock' in navigator) {
+        try { wakeLock = await navigator.wakeLock.request('screen'); } catch(e) {}
+      }
+    }
+    async function liberarWakeLock() {
+      if (wakeLock) { await wakeLock.release(); wakeLock = null; }
+    }
+    document.addEventListener('visibilitychange', async () => {
+      if (wakeLock && document.visibilityState === 'visible') await solicitarWakeLock();
+    });
+
+    // 🎮 ESTADO DEL JUEGO
+    let jugadores = [];
+    let modoOrden = 'random'; // 'random' | 'sequential'
+    let ordenTurnos = [];
+    let indiceTurnoActual = 0;
     let juegoActivo = false;
-    let puntaje = 0;
-    let record = parseInt(localStorage.getItem('letraflash_record')) || 0;
+    let rondaActual = 1;
+    
+    // Estado de la ronda actual
+    let letrasUsadas = [];
+    let categoriaActual = "";
+    let tiempoRestante = TIEMPO_TOTAL;
+    let puntajeRonda = 0;
     let timerInterval = null;
 
-    const grid = document.getElementById('grid');
+    // DOM Elements
+    const setupScreen = document.getElementById('setupScreen');
+    const gameScreen = document.getElementById('gameScreen');
+    const resultsScreen = document.getElementById('resultsScreen');
+    const playersList = document.getElementById('playersList');
+    const playerNameInput = document.getElementById('playerNameInput');
+    const btnStartSetup = document.getElementById('btnStartSetup');
+    const modal = document.getElementById('modal');
+    
+    // Elements del juego
+    const turnPlayerName = document.getElementById('turnPlayerName');
+    const turnPlayerScore = document.getElementById('turnPlayerScore');
     const categoriaEl = document.getElementById('categoria');
     const scoreEl = document.getElementById('score');
-    const recordEl = document.getElementById('record');
+    const roundNumEl = document.getElementById('roundNum');
     const timerEl = document.getElementById('timer');
     const timerTextEl = document.getElementById('timer-text');
-    const btnStart = document.getElementById('btnStart');
-    const modal = document.getElementById('modal');
-    const finalScoreEl = document.getElementById('finalScore');
-    const recordMsgEl = document.getElementById('recordMsg');
+    const grid = document.getElementById('grid');
+    const btnEndTurn = document.getElementById('btnEndTurn');
+    const rankingList = document.getElementById('rankingList');
+    const modalMessage = document.getElementById('modalMessage');
+    const nextPlayerDisplay = document.getElementById('nextPlayerDisplay');
+    const btnNextTurn = document.getElementById('btnNextTurn');
 
-    recordEl.textContent = record;
-    renderizarTablero();
+    // Input handling
+    playerNameInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') agregarJugador();
+    });
+    playerNameInput.addEventListener('input', () => {
+      btnStartSetup.disabled = jugadores.length < MIN_JUGADORES;
+    });
+
+    // 🎲 Funciones de configuración
+    function setModo(modo) {
+      modoOrden = modo;
+      document.getElementById('modeRandom').classList.toggle('active', modo === 'random');
+      document.getElementById('modeSequential').classList.toggle('active', modo === 'sequential');
+    }
+
+    function agregarJugador() {
+      const nombre = playerNameInput.value.trim();
+      if (!nombre || jugadores.length >= MAX_JUGADORES) return;
+      if (jugadores.some(j => j.nombre.toLowerCase() === nombre.toLowerCase())) {
+        playerNameInput.value = '';
+        return;
+      }
+      
+      const colores = [null, '--player1', '--player2', '--player3', '--player4'];
+      jugadores.push({
+        id: Date.now(),
+        nombre: nombre,
+        puntaje: 0,
+        color: colores[Math.min(jugadores.length + 1, 4)]
+      });
+      
+      renderizarListaJugadores();
+      playerNameInput.value = '';
+      playerNameInput.focus();
+      btnStartSetup.disabled = jugadores.length < MIN_JUGADORES;
+    }
+
+    function eliminarJugador(id) {
+      jugadores = jugadores.filter(j => j.id !== id);
+      renderizarListaJugadores();
+      btnStartSetup.disabled = jugadores.length < MIN_JUGADORES;
+    }
+
+    function renderizarListaJugadores() {
+      playersList.innerHTML = jugadores.map((j, i) => `
+        <div class="player-item">
+          <span class="name">${i + 1}. ${j.nombre}</span>
+          <button class="remove" onclick="eliminarJugador(${j.id})">×</button>
+        </div>
+      `).join('');
+    }
+
+    // 🚀 Iniciar partida
+    function iniciarPartida() {
+      if (jugadores.length < MIN_JUGADORES) return;
+      
+      initAudio();
+      solicitarWakeLock();
+      SFX.start();
+      
+      // Generar orden de turnos
+      generarOrdenTurnos();
+      indiceTurnoActual = 0;
+      rondaActual = 1;
+      
+      // Cambiar pantalla
+      setupScreen.classList.add('hidden');
+      resultsScreen.classList.remove('active');
+      gameScreen.classList.add('active');
+      
+      // Iniciar primer turno
+      iniciarTurno();
+    }
+
+    function generarOrdenTurnos() {
+      if (modoOrden === 'random') {
+        // Fisher-Yates shuffle
+        ordenTurnos = [...jugadores];
+        for (let i = ordenTurnos.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [ordenTurnos[i], ordenTurnos[j]] = [ordenTurnos[j], ordenTurnos[i]];
+        }
+      } else {
+        // Secuencial: orden de ingreso
+        ordenTurnos = [...jugadores];
+      }
+    }
+
+    function obtenerJugadorActual() {
+      return ordenTurnos[indiceTurnoActual];
+    }
+
+    function obtenerSiguienteJugador() {
+      return ordenTurnos[(indiceTurnoActual + 1) % ordenTurnos.length];
+    }
+
+    // 🎮 Lógica del turno
+    function iniciarTurno() {
+      const jugador = obtenerJugadorActual();
+      
+      // Resetear estado de ronda
+      letrasUsadas = [];
+      puntajeRonda = 0;
+      categoriaActual = CATEGORIAS[Math.floor(Math.random() * CATEGORIAS.length)];
+      tiempoRestante = TIEMPO_TOTAL;
+      juegoActivo = true;
+      
+      // Actualizar UI
+      turnPlayerName.textContent = jugador.nombre;
+      turnPlayerName.style.color = jugador.color ? `var(${jugador.color})` : 'var(--accent)';
+      turnPlayerScore.textContent = `Puntaje total: ${jugador.puntaje}`;
+      categoriaEl.textContent = categoriaActual;
+      scoreEl.textContent = '0';
+      roundNumEl.textContent = rondaActual;
+      btnEndTurn.style.display = 'block';
+      
+      // Renderizar tablero
+      renderizarTablero();
+      actualizarTablero();
+      
+      // Iniciar timer
+      reiniciarTemporizador();
+    }
 
     function renderizarTablero() {
       grid.innerHTML = '';
@@ -313,6 +712,7 @@
         tile.textContent = letra;
         tile.dataset.letra = letra;
         tile.onclick = () => presionarLetra(letra);
+        tile.ontouchstart = (e) => { e.preventDefault(); presionarLetra(letra); };
         grid.appendChild(tile);
       });
     }
@@ -324,27 +724,15 @@
       });
     }
 
-    function iniciarJuego() {
-      initAudio(); // Activa el contexto de audio con interacción del usuario
-      SFX.start();
-      letrasUsadas = [];
-      puntaje = 0;
-      categoriaActual = CATEGORIAS[Math.floor(Math.random() * CATEGORIAS.length)];
-      juegoActivo = true;
-      categoriaEl.textContent = categoriaActual;
-      scoreEl.textContent = puntaje;
-      btnStart.style.display = 'none';
-      actualizarTablero();
-      reiniciarTemporizador();
-    }
-
     function reiniciarTemporizador() {
       clearInterval(timerInterval);
       tiempoRestante = TIEMPO_TOTAL;
       actualizarTimerUI();
+      
       timerInterval = setInterval(() => {
         tiempoRestante--;
         actualizarTimerUI();
+        
         if (tiempoRestante <= 2 && tiempoRestante > 0) {
           timerEl.classList.add('urgent');
           SFX.tickAlert();
@@ -352,7 +740,8 @@
         } else {
           SFX.tick();
         }
-        if (tiempoRestante <= 0) finalizarJuego();
+        
+        if (tiempoRestante <= 0) finalizarRonda();
       }, 1000);
     }
 
@@ -366,59 +755,126 @@
 
     function presionarLetra(letra) {
       if (!juegoActivo || letrasUsadas.includes(letra)) return;
+      
       SFX.success();
       if (navigator.vibrate) navigator.vibrate(20);
       
       letrasUsadas.push(letra);
-      puntaje++;
-      scoreEl.textContent = puntaje;
+      puntajeRonda++;
+      scoreEl.textContent = puntajeRonda;
       actualizarTablero();
       
-      // Efecto visual en la ficha
       const tile = document.querySelector(`.tile[data-letra="${letra}"]`);
-      tile.classList.add('pressed');
-      setTimeout(() => tile.classList.remove('pressed'), 200);
+      if (tile) {
+        tile.classList.add('pressed');
+        setTimeout(() => tile.classList.remove('pressed'), 200);
+      }
       
       reiniciarTemporizador();
     }
 
-    function finalizarJuego() {
+    function finalizarTurnoManual() {
+      if (!juegoActivo) return;
+      clearInterval(timerInterval);
+      juegoActivo = false;
+      finalizarRonda();
+    }
+
+    function finalizarRonda() {
       clearInterval(timerInterval);
       juegoActivo = false;
       SFX.boom();
       if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
       
-      if (puntaje > record) {
-        record = puntaje;
-        localStorage.setItem('letraflash_record', record);
-        recordEl.textContent = record;
-        recordMsgEl.style.display = 'block';
-      } else {
-        recordMsgEl.style.display = 'none';
-      }
+      // Sumar puntaje al jugador actual
+      const jugador = obtenerJugadorActual();
+      jugador.puntaje += puntajeRonda;
       
-      finalScoreEl.textContent = `${puntaje} ✨`;
+      // Mostrar modal de cambio de turno
+      const siguiente = obtenerSiguienteJugador();
+      modalMessage.textContent = `Ronda ${rondaActual} finalizada`;
+      nextPlayerDisplay.textContent = `➡️ Sigue: ${siguiente.nombre}`;
+      nextPlayerDisplay.style.color = siguiente.color ? `var(${siguiente.color})` : 'var(--accent)';
+      
+      // Si es el último jugador de la ronda, preguntar si continuar
+      const esUltimo = indiceTurnoActual === ordenTurnos.length - 1;
+      btnNextTurn.textContent = esUltimo ? `🔄 Ronda ${rondaActual + 1}` : 'Siguiente ➡️';
+      
       modal.classList.add('active');
     }
 
-    function cerrarModal() {
+    function siguienteTurno() {
       modal.classList.remove('active');
-      btnStart.style.display = 'block';
-      timerEl.classList.remove('urgent');
-      timerEl.style.background = `conic-gradient(#69f0ae 360deg, #333 360deg)`;
+      
+      // Avanzar al siguiente jugador
+      indiceTurnoActual = (indiceTurnoActual + 1) % ordenTurnos.length;
+      
+      // Si volvimos al primer jugador, incrementamos ronda
+      if (indiceTurnoActual === 0) {
+        rondaActual++;
+      }
+      
+      SFX.nextTurn();
+      iniciarTurno();
     }
 
-    function reiniciarDesdeModal() {
-      cerrarModal();
-      iniciarJuego();
+    function finalizarPartida() {
+      modal.classList.remove('active');
+      liberarWakeLock();
+      mostrarResultados();
     }
 
-    // Soporte teclado
-    document.addEventListener('keydown', (e) => {
-      if (!juegoActivo) return;
-      const letra = e.key.toUpperCase();
-      if (ABECEDARIO.includes(letra)) presionarLetra(letra);
-    });
+    // 🏆 Resultados
+    function mostrarResultados() {
+      gameScreen.classList.remove('active');
+      resultsScreen.classList.add('active');
+      
+      // Ordenar jugadores por puntaje
+      const ranking = [...jugadores].sort((a, b) => b.puntaje - a.puntaje);
+      
+      rankingList.innerHTML = ranking.map((j, i) => {
+        const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+        return `
+          <div class="ranking-item">
+            <div class="rank ${rankClass}">${i + 1}${['º','º','º','º'][i] || 'º'}</div>
+            <div class="player" style="color:${j.color ? `var(${j.color})` : 'inherit'}">${j.nombre}</div>
+            <div class="score">${j.puntaje} pts</div>
+          </div>
+        `;
+      }).join('');
+      
+      // Efecto de celebración para el ganador
+      if (ranking[0].puntaje > 0) {
+        setTimeout(() => {
+          const winner = rankingList.querySelector('.ranking-item:first-child');
+          if (winner) winner.style.animation = 'pulse 0.5s 3';
+        }, 300);
+      }
+    }
+
+    function volverSetup() {
+      resultsScreen.classList.remove('active');
+      gameScreen.classList.remove('active');
+      setupScreen.classList.remove('hidden');
+      liberarWakeLock();
+      // Resetear estado
+      jugadores = [];
+      renderizarListaJugadores();
+      btnStartSetup.disabled = true;
+      playerNameInput.value = '';
+    }
+
+    // 👇 Prevenir zoom y gestos no deseados
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', (e) => {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) e.preventDefault();
+      lastTouchEnd = now;
+    }, false);
+    
+    document.addEventListener('touchmove', (e) => {
+      if (!e.target.closest('.players-list')) e.preventDefault();
+    }, { passive: false });
   </script>
 </body>
 </html>
