@@ -1,531 +1,278 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
-  <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-  <meta name="theme-color" content="#121212"/>
-  <title>LetraFlash 🎮</title>
-  <style>
-    :root {
-      --bg: #121212;
-      --accent: #ff9800;
-      --text: #ffffff;
-      --text-dim: #b0b0b0;
-      --used: #1e1e1e;
-      --success: #69f0ae;
-      --safe-top: env(safe-area-inset-top);
-      --safe-bottom: env(safe-area-inset-bottom);
-      --safe-left: env(safe-area-inset-left);
-      --safe-right: env(safe-area-inset-right);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
-      overscroll-behavior: none;
-      touch-action: manipulation;
-      -webkit-touch-callout: none;
-      -webkit-user-select: none;
-      user-select: none;
-      width: 100dvw;
-      height: 100dvh;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
-      width: 100dvw;
-      height: 100dvh;
-      padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
-      -webkit-tap-highlight-color: transparent;
-    }
+<meta charset="UTF-8" />
 
-    /* ══════════════════════════════
-       BANNER SUPERIOR
-    ══════════════════════════════ */
-    .banner {
-      flex-shrink: 0;
-      background: linear-gradient(135deg, var(--accent), #e65100);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 7px 16px;
-    }
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
 
-    .banner-tema {
-      flex: 1;
-      min-width: 0;
-    }
-    .banner-tema .lbl {
-      font-size: 9px;
-      font-weight: 700;
-      color: rgba(0,0,0,0.55);
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      display: block;
-    }
-    .banner-tema h1 {
-      font-size: clamp(15px, 3.2vw, 21px);
-      font-weight: 800;
-      color: #000;
-      line-height: 1.15;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="theme-color" content="#121212"/>
 
-    /* timer circular en el banner */
-    .timer {
-      flex-shrink: 0;
-      width: clamp(42px, 6.5vh, 54px);
-      height: clamp(42px, 6.5vh, 54px);
-      border-radius: 50%;
-      background: conic-gradient(rgba(0,0,0,0.7) 360deg, rgba(0,0,0,0.15) 360deg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-    }
-    .timer::before {
-      content: '';
-      position: absolute;
-      width: 80%;
-      height: 80%;
-      background: linear-gradient(135deg, #ffb74d, #e65100);
-      border-radius: 50%;
-    }
-    .timer span {
-      position: relative;
-      font-size: clamp(15px, 3vh, 19px);
-      font-weight: 800;
-      color: #000;
-      z-index: 1;
-    }
-    .timer.urgent { animation: pulse 0.4s infinite alternate; }
-    @keyframes pulse { from{transform:scale(1)} to{transform:scale(1.1)} }
+<title>LetraFlash 🎮</title>
 
-    /* stats en el banner */
-    .bstat {
-      flex-shrink: 0;
-      text-align: center;
-      min-width: 36px;
-    }
-    .bstat .lbl {
-      font-size: 9px;
-      font-weight: 700;
-      color: rgba(0,0,0,0.55);
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      display: block;
-    }
-    .bstat .val {
-      font-size: clamp(16px, 3.5vh, 21px);
-      font-weight: 800;
-      color: #000;
-      line-height: 1.1;
-    }
+<style>
+:root {
+  --bg: #121212;
+  --accent: #ff9800;
+  --text: #ffffff;
+  --text-dim: #b0b0b0;
+  --used: #1e1e1e;
+  --success: #69f0ae;
+  --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
+  --safe-left: env(safe-area-inset-left);
+  --safe-right: env(safe-area-inset-right);
+}
 
-    /* ══════════════════════════════
-       ÁREA PRINCIPAL
-    ══════════════════════════════ */
-    .main {
-      flex: 1;
-      min-height: 0;
-      display: flex;
-      flex-direction: row;
-    }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ── LETRAS LATERAL IZQUIERDO ── */
-    .side-letters {
-      flex-shrink: 0;
-      width: clamp(38px, 8.5vw, 56px);
-      display: flex;
-      flex-direction: column;
-      padding: 5px 4px 5px 5px;
-      gap: clamp(2px, 0.5vh, 5px);
-    }
+/* 🔥 FIX REAL */
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
 
-    .side-letter {
-      flex: 1;
-      min-height: 0;
-      background: linear-gradient(135deg, #2c2c2c, #1e1e1e);
-      border: 1.5px solid rgba(255,152,0,0.4);
-      border-radius: 7px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: clamp(10px, 2vh, 15px);
-      font-weight: 800;
-      cursor: pointer;
-      transition: transform 0.1s, border-color 0.1s;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .side-letter:active { transform: scale(0.88); }
-    .side-letter.pressed { animation: pop 0.18s ease-out; }
-    @keyframes pop {
-      0%   { transform: scale(0.88); }
-      55%  { transform: scale(1.1);  }
-      100% { transform: scale(1);    }
-    }
-    .side-letter.used {
-      background: var(--used);
-      border-color: #303030;
-      color: #484848;
-      text-decoration: line-through;
-      cursor: not-allowed;
-      transform: none !important;
-    }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
+  -webkit-tap-highlight-color: transparent;
+}
 
-    /* ── ÁREA DERECHA: intro / en juego vacía ── */
-    .right-area {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 12px 18px;
-      gap: 10px;
-    }
-    .right-area.playing {
-      /* durante el juego el área derecha queda limpia,
-         sirve como referencia visual de "zona libre" */
-      justify-content: flex-start;
-      padding-top: 14px;
-    }
+/* BANNER */
+.banner {
+  flex-shrink: 0;
+  background: linear-gradient(135deg, var(--accent), #e65100);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 16px;
+}
 
-    .btn-start {
-      width: 100%;
-      max-width: 280px;
-      padding: clamp(11px, 2.5vh, 15px);
-      background: var(--success);
-      color: #000;
-      border: none;
-      border-radius: 13px;
-      font-size: clamp(14px, 2.8vh, 17px);
-      font-weight: bold;
-      cursor: pointer;
-      transition: transform 0.1s;
-    }
-    .btn-start:active { transform: scale(0.97); }
+.banner-tema { flex: 1; min-width: 0; }
 
-    .hint {
-      font-size: clamp(11px, 1.8vh, 13px);
-      color: var(--text-dim);
-      text-align: center;
-      line-height: 1.5;
-      max-width: 260px;
-    }
+.banner-tema .lbl {
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(0,0,0,0.55);
+}
 
-    /* palabra actual ingresada */
-    .palabra-display {
-      display: none;
-      font-size: clamp(22px, 5vh, 34px);
-      font-weight: 800;
-      color: var(--accent);
-      letter-spacing: 4px;
-      text-align: center;
-    }
-    .palabra-display.visible { display: block; }
+.banner-tema h1 {
+  font-size: clamp(15px, 3.2vw, 21px);
+  font-weight: 800;
+  color: #000;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
-    /* ══════════════════════════════
-       MODAL
-    ══════════════════════════════ */
-    .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.87);
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-      padding: 16px;
-      touch-action: manipulation;
-    }
-    .modal.active { display: flex; }
-    .modal-content {
-      background: #1e1e1e;
-      padding: 20px 24px;
-      border-radius: 20px;
-      max-width: 340px;
-      width: 100%;
-      text-align: center;
-      border: 2px solid var(--accent);
-      animation: mIn 0.27s ease-out;
-    }
-    @keyframes mIn { from{transform:scale(0.87);opacity:0} to{transform:scale(1);opacity:1} }
-    .modal h2 { font-size: clamp(22px, 5vw, 28px); margin-bottom: 8px; }
-    .modal p  { color: var(--text-dim); font-size: clamp(12px, 2.5vw, 14px); }
-    .score-box {
-      background: rgba(255,152,0,0.14);
-      padding: 13px;
-      border-radius: 11px;
-      margin: 13px 0;
-    }
-    .score-box .slbl { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px; }
-    .score-box .big  { font-size: clamp(30px, 7vw, 36px); font-weight: bold; display: block; }
-    .rec-msg { color: var(--success); font-weight: bold; font-size: 13px; display: none; margin-top: 4px; }
-    .modal-actions { display: flex; gap: 8px; margin-top: 13px; }
-    .modal-actions button {
-      flex: 1; padding: 11px; border: none; border-radius: 10px;
-      font-weight: bold; cursor: pointer; font-size: clamp(12px, 2.5vw, 14px);
-      touch-action: manipulation;
-    }
-    .btn-restart { background: var(--accent); color: #000; }
-    .btn-close   { background: #444;          color: #fff; }
-  </style>
+/* TIMER */
+.timer {
+  width: clamp(42px, 6.5vh, 54px);
+  height: clamp(42px, 6.5vh, 54px);
+  border-radius: 50%;
+  background: conic-gradient(rgba(0,0,0,0.7) 360deg, rgba(0,0,0,0.15) 360deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.timer::before {
+  content: '';
+  position: absolute;
+  width: 80%;
+  height: 80%;
+  background: linear-gradient(135deg, #ffb74d, #e65100);
+  border-radius: 50%;
+}
+
+.timer span {
+  position: relative;
+  font-size: clamp(15px, 3vh, 19px);
+  font-weight: 800;
+  color: #000;
+}
+
+/* MAIN */
+.main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow: hidden; /* 🔥 FIX */
+}
+
+/* LETRAS */
+.side-letters {
+  width: clamp(38px, 8.5vw, 56px);
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+  gap: 4px;
+}
+
+.side-letter {
+  flex: 1;
+  background: #1e1e1e;
+  border: 1.5px solid rgba(255,152,0,0.4);
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(10px, 2vh, 15px);
+  font-weight: 800;
+}
+
+.side-letter.used {
+  background: var(--used);
+  color: #484848;
+  text-decoration: line-through;
+}
+
+/* RIGHT */
+.right-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.btn-start {
+  padding: 14px;
+  background: var(--success);
+  border: none;
+  border-radius: 12px;
+  font-weight: bold;
+}
+
+/* MODAL */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+  align-items: center;
+  justify-content: center;
+}
+
+.modal.active {
+  display: flex;
+}
+</style>
 </head>
+
 <body>
 
-  <!-- ── BANNER ── -->
-  <div class="banner">
-    <div class="banner-tema">
-      <span class="lbl">🎯 Temática</span>
-      <h1 id="categoria">¡LISTOS?</h1>
-    </div>
-
-    <div class="timer" id="timer">
-      <span id="timer-text">5</span>
-    </div>
-
-    <div class="bstat">
-      <span class="lbl">Letras</span>
-      <span class="val" id="score">0</span>
-    </div>
-
-    <div class="bstat">
-      <span class="lbl">Récord</span>
-      <span class="val" id="record">0</span>
-    </div>
+<div class="banner">
+  <div class="banner-tema">
+    <span class="lbl">🎯 Temática</span>
+    <h1 id="categoria">¡LISTOS?</h1>
   </div>
 
-  <!-- ── MAIN ── -->
-  <div class="main">
-
-    <!-- letras en columna -->
-    <div class="side-letters" id="sideLetters"></div>
-
-    <!-- área derecha -->
-    <div class="right-area" id="rightArea">
-      <button class="btn-start" id="btnStart" onclick="iniciarJuego()">▶️ INICIAR JUEGO</button>
-      <p class="hint">Poné el celu en horizontal y<br>presioná las letras antes de que<br>se acabe el tiempo ⏱️</p>
-    </div>
-
+  <div class="timer">
+    <span id="timer-text">5</span>
   </div>
 
-  <!-- ── MODAL ── -->
-  <div class="modal" id="modal">
-    <div class="modal-content">
-      <h2>¡BOOM! 💥</h2>
-      <p>Se acabó el tiempo ⏱️</p>
-      <div class="score-box">
-        <span class="slbl">Tu puntaje</span>
-        <span class="big" id="finalScore">0 ✨</span>
-        <span class="rec-msg" id="recordMsg">🎉 ¡Nuevo récord!</span>
-      </div>
-      <div class="modal-actions">
-        <button class="btn-close"   onclick="cerrarModal()">Salir</button>
-        <button class="btn-restart" onclick="reiniciarDesdeModal()">Jugar otra vez</button>
-      </div>
-    </div>
+  <div class="bstat">
+    <span id="score">0</span>
   </div>
 
-  <script>
-    const ABECEDARIO = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split('');
-    const CATEGORIAS = [
-      "FRUTAS","PAÍSES","ANIMALES","MARCAS","PELÍCULAS",
-      "COLORES","OBJETOS DE COCINA","NOMBRES","DEPORTES","CANTANTES"
-    ];
-    const TIEMPO_TOTAL = 5;
+  <div class="bstat">
+    <span id="record">0</span>
+  </div>
+</div>
 
-    /* Wake Lock */
-    let wakeLock = null;
-    async function solicitarWakeLock() {
-      if ('wakeLock' in navigator) try { wakeLock = await navigator.wakeLock.request('screen'); } catch {}
-    }
-    async function liberarWakeLock() {
-      if (wakeLock) { await wakeLock.release(); wakeLock = null; }
-    }
-    document.addEventListener('visibilitychange', async () => {
-      if (wakeLock !== null && document.visibilityState === 'visible') await solicitarWakeLock();
-    });
+<div class="main">
+  <div class="side-letters" id="sideLetters"></div>
 
-    /* Audio */
-    let audioCtx = null;
-    function initAudio() {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-    }
-    function playTone(freq, type, dur, vol = 0.1) {
-      if (!audioCtx) return;
-      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
-      o.type = type;
-      o.frequency.setValueAtTime(freq, audioCtx.currentTime);
-      g.gain.setValueAtTime(vol, audioCtx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
-      o.connect(g); g.connect(audioCtx.destination);
-      o.start(); o.stop(audioCtx.currentTime + dur);
-    }
-    const SFX = {
-      tick:      () => playTone(800,  'square',   0.04, 0.05),
-      tickAlert: () => playTone(1000, 'square',   0.03, 0.08),
-      success:   () => { playTone(523,'sine',0.1,0.15); setTimeout(()=>playTone(659,'sine',0.12,0.15),60); },
-      boom:      () => playTone(150,  'sawtooth', 0.4,  0.25),
-      start:     () => {
-        playTone(440,'sine',0.1,0.1);
-        setTimeout(()=>playTone(554,'sine',0.1,0.1),100);
-        setTimeout(()=>playTone(659,'sine',0.15,0.1),200);
-      }
-    };
+  <div class="right-area" id="rightArea">
+    <button class="btn-start" onclick="iniciarJuego()">INICIAR</button>
+  </div>
+</div>
 
-    /* Estado */
-    let letrasUsadas = [], tiempoRestante = TIEMPO_TOTAL;
-    let juegoActivo = false, puntaje = 0, timerInterval = null;
-    let record = parseInt(localStorage.getItem('letraflash_record')) || 0;
+<div class="modal" id="modal"></div>
 
-    const categoriaEl  = document.getElementById('categoria');
-    const scoreEl      = document.getElementById('score');
-    const recordEl     = document.getElementById('record');
-    const timerEl      = document.getElementById('timer');
-    const timerTextEl  = document.getElementById('timer-text');
-    const rightArea    = document.getElementById('rightArea');
-    const modal        = document.getElementById('modal');
-    const finalScoreEl = document.getElementById('finalScore');
-    const recordMsgEl  = document.getElementById('recordMsg');
+<script>
+const ABECEDARIO = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split('');
+let usadas = [];
+let activo = false;
+let tiempo = 5;
+let puntos = 0;
+let interval;
 
-    recordEl.textContent = record;
-    renderizarLetras();
+const cont = document.getElementById("sideLetters");
 
-    function renderizarLetras() {
-      const cont = document.getElementById('sideLetters');
-      cont.innerHTML = '';
-      ABECEDARIO.forEach(letra => {
-        const el = document.createElement('div');
-        el.className = 'side-letter';
-        el.textContent = letra;
-        el.dataset.letra = letra;
-        el.onclick     = () => presionarLetra(letra);
-        el.ontouchstart = (e) => { e.preventDefault(); presionarLetra(letra); };
-        cont.appendChild(el);
-      });
-    }
+ABECEDARIO.forEach(l=>{
+  const d = document.createElement("div");
+  d.className = "side-letter";
+  d.innerText = l;
+  d.onclick = ()=>clickLetra(l);
+  cont.appendChild(d);
+});
 
-    function actualizarLetras() {
-      document.querySelectorAll('.side-letter').forEach(el => {
-        el.classList.toggle('used', letrasUsadas.includes(el.dataset.letra));
-      });
-    }
+function iniciarJuego(){
+  usadas = [];
+  puntos = 0;
+  tiempo = 5;
+  activo = true;
 
-    async function iniciarJuego() {
-      initAudio();
-      await solicitarWakeLock();
-      SFX.start();
-      letrasUsadas = [];
-      puntaje = 0;
-      const cat = CATEGORIAS[Math.floor(Math.random() * CATEGORIAS.length)];
-      categoriaEl.textContent = cat;
-      scoreEl.textContent = 0;
-      juegoActivo = true;
-      rightArea.innerHTML = '';          /* limpiar área derecha durante el juego */
-      rightArea.classList.add('playing');
-      actualizarLetras();
-      reiniciarTemporizador();
-    }
+  document.getElementById("score").innerText = 0;
 
-    function reiniciarTemporizador() {
-      clearInterval(timerInterval);
-      tiempoRestante = TIEMPO_TOTAL;
-      actualizarTimerUI();
-      timerInterval = setInterval(() => {
-        tiempoRestante--;
-        actualizarTimerUI();
-        if (tiempoRestante <= 2 && tiempoRestante > 0) {
-          timerEl.classList.add('urgent');
-          SFX.tickAlert();
-          if (navigator.vibrate) navigator.vibrate(50);
-        } else {
-          SFX.tick();
-        }
-        if (tiempoRestante <= 0) finalizarJuego();
-      }, 1000);
-    }
+  document.querySelectorAll(".side-letter").forEach(t=>t.classList.remove("used"));
 
-    function actualizarTimerUI() {
-      timerTextEl.textContent = tiempoRestante;
-      const deg = (tiempoRestante / TIEMPO_TOTAL) * 360;
-      const a   = tiempoRestante <= 2 ? 1 : tiempoRestante <= 3 ? 0.85 : 0.7;
-      timerEl.style.background = `conic-gradient(rgba(0,0,0,${a}) ${deg}deg, rgba(0,0,0,0.12) ${deg}deg)`;
-      if (tiempoRestante > 2) timerEl.classList.remove('urgent');
-    }
+  clearInterval(interval);
+  interval = setInterval(()=>{
+    tiempo--;
+    document.getElementById("timer-text").innerText = tiempo;
+    if(tiempo<=0) terminar();
+  },1000);
+}
 
-    function presionarLetra(letra) {
-      if (!juegoActivo || letrasUsadas.includes(letra)) return;
-      SFX.success();
-      if (navigator.vibrate) navigator.vibrate(18);
-      letrasUsadas.push(letra);
-      puntaje++;
-      scoreEl.textContent = puntaje;
-      actualizarLetras();
-      const el = document.querySelector(`.side-letter[data-letra="${letra}"]`);
-      if (el) { el.classList.add('pressed'); setTimeout(()=>el.classList.remove('pressed'), 180); }
-      reiniciarTemporizador();
-    }
+function clickLetra(l){
+  if(!activo || usadas.includes(l)) return;
 
-    async function finalizarJuego() {
-      clearInterval(timerInterval);
-      juegoActivo = false;
-      await liberarWakeLock();
-      SFX.boom();
-      if (navigator.vibrate) navigator.vibrate([100,50,100]);
-      if (puntaje > record) {
-        record = puntaje;
-        localStorage.setItem('letraflash_record', record);
-        recordEl.textContent = record;
-        recordMsgEl.style.display = 'block';
-      } else {
-        recordMsgEl.style.display = 'none';
-      }
-      finalScoreEl.textContent = `${puntaje} ✨`;
-      modal.classList.add('active');
-    }
+  usadas.push(l);
+  puntos++;
+  tiempo = 5;
 
-    function cerrarModal() {
-      modal.classList.remove('active');
-      timerEl.classList.remove('urgent');
-      timerEl.style.background = `conic-gradient(rgba(0,0,0,0.7) 360deg, rgba(0,0,0,0.12) 360deg)`;
-      categoriaEl.textContent = '¡LISTOS?';
-      /* restaurar área derecha con botón */
-      rightArea.classList.remove('playing');
-      rightArea.innerHTML = `
-        <button class="btn-start" onclick="iniciarJuego()">▶️ INICIAR JUEGO</button>
-        <p class="hint">Poné el celu en horizontal y<br>presioná las letras antes de que<br>se acabe el tiempo ⏱️</p>`;
-    }
+  document.getElementById("score").innerText = puntos;
 
-    function reiniciarDesdeModal() {
-      cerrarModal();
-      iniciarJuego();
-    }
+  document.querySelectorAll(".side-letter").forEach(t=>{
+    if(t.innerText===l) t.classList.add("used");
+  });
+}
 
-    /* Teclado físico */
-    document.addEventListener('keydown', (e) => {
-      if (!juegoActivo) return;
-      const l = e.key.toUpperCase();
-      if (ABECEDARIO.includes(l)) presionarLetra(l);
-    });
+function terminar(){
+  activo = false;
+  clearInterval(interval);
+  alert("Puntaje: "+puntos);
+}
 
-    /* Anti-zoom doble tap */
-    let lastTap = 0;
-    document.addEventListener('touchend', (e) => {
-      const now = Date.now();
-      if (now - lastTap <= 300) e.preventDefault();
-      lastTap = now;
-    }, false);
+/* 🔥 BLOQUEO ZOOM COMPLETO */
 
-    document.addEventListener('touchmove', (e) => {
-      if (juegoActivo) e.preventDefault();
-    }, { passive: false });
-  </script>
+// doble tap
+let lastTap = 0;
+document.addEventListener('touchend', (e)=>{
+  const now = Date.now();
+  if(now - lastTap <= 300) e.preventDefault();
+  lastTap = now;
+}, false);
+
+// pinch real
+['gesturestart','gesturechange','gestureend'].forEach(ev=>{
+  document.addEventListener(ev, e=>e.preventDefault());
+});
+</script>
+
 </body>
 </html>
