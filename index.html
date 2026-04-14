@@ -1,1 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
 
+<!-- 🔥 NO CACHE (clave para GitHub) -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<!-- 🔥 BLOQUEO TOTAL DE ZOOM -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+
+<meta name="theme-color" content="#121212"/>
+
+<title>LetraFlash 🎮</title>
+
+<style>
+:root {
+  --bg:#121212;
+  --accent:#ff9800;
+  --text:#fff;
+  --used:#333;
+  --success:#69f0ae;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+
+html,body{
+  overscroll-behavior:none;
+  touch-action:manipulation;
+  user-select:none;
+  overflow-x:hidden;
+}
+
+body{
+  font-family:sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  min-height:100dvh;
+  padding:10px;
+}
+
+/* HEADER */
+header{
+  width:100%;
+  max-width:500px;
+  background:linear-gradient(135deg,var(--accent),#e65100);
+  padding:16px;
+  border-radius:0 0 20px 20px;
+  text-align:center;
+}
+
+/* STATS */
+.stats{
+  display:flex;
+  justify-content:space-around;
+  width:100%;
+  max-width:500px;
+  margin:10px 0;
+}
+
+/* GRID FIX */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr)); /* 🔥 FIX */
+  gap:10px;
+  width:100%;
+  max-width:500px;
+}
+
+/* TILE FIX DEFINITIVO */
+.tile{
+  aspect-ratio:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:clamp(16px,6vmin,24px); /* 🔥 FIX */
+  font-weight:800;
+  background:#1e1e1e;
+  border:2px solid rgba(255,152,0,.5);
+  border-radius:12px;
+}
+
+.tile:active{transform:scale(.9);}
+
+.tile.used{
+  background:var(--used);
+  color:#666;
+  text-decoration:line-through;
+}
+
+button{
+  width:100%;
+  max-width:500px;
+  padding:15px;
+  margin:20px 0;
+  border:none;
+  border-radius:12px;
+  background:var(--success);
+  font-weight:bold;
+}
+
+/* TIMER */
+.timer{
+  font-size:22px;
+  font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>LetraFlash</h1>
+</header>
+
+<div class="stats">
+<div>Puntaje: <span id="score">0</span></div>
+<div class="timer" id="time">5</div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<button onclick="start()">INICIAR</button>
+
+<script>
+// 🔥 VERSION PARA FORZAR ACTUALIZACIÓN
+const VERSION = "v2.0";
+
+// CONFIG
+const ABC="ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split('');
+const TOTAL=5;
+
+let usadas=[];
+let activo=false;
+let tiempo=TOTAL;
+let puntos=0;
+let interval;
+
+// GRID
+const grid=document.getElementById("grid");
+
+ABC.forEach(l=>{
+  const d=document.createElement("div");
+  d.className="tile";
+  d.innerText=l;
+  d.onclick=()=>click(l);
+  grid.appendChild(d);
+});
+
+// START
+function start(){
+  usadas=[];
+  puntos=0;
+  tiempo=TOTAL;
+  activo=true;
+
+  document.getElementById("score").innerText=0;
+
+  document.querySelectorAll(".tile").forEach(t=>t.classList.remove("used"));
+
+  clearInterval(interval);
+  interval=setInterval(()=>{
+    tiempo--;
+    document.getElementById("time").innerText=tiempo;
+    if(tiempo<=0) end();
+  },1000);
+}
+
+// CLICK
+function click(l){
+  if(!activo||usadas.includes(l))return;
+
+  usadas.push(l);
+  puntos++;
+  tiempo=TOTAL;
+
+  document.getElementById("score").innerText=puntos;
+
+  document.querySelectorAll(".tile").forEach(t=>{
+    if(t.innerText===l)t.classList.add("used");
+  });
+}
+
+// END
+function end(){
+  activo=false;
+  clearInterval(interval);
+  alert("Puntaje: "+puntos);
+}
+
+/* 🔥 BLOQUEO ZOOM TOTAL */
+
+// doble tap
+let last=0;
+document.addEventListener("touchend",e=>{
+  const now=Date.now();
+  if(now-last<300)e.preventDefault();
+  last=now;
+},false);
+
+// pinch
+["gesturestart","gesturechange","gestureend"].forEach(ev=>{
+  document.addEventListener(ev,e=>e.preventDefault());
+});
+
+/* 🔥 LIMPIA CACHE AUTOMÁTICO */
+if('caches' in window){
+  caches.keys().then(names=>{
+    names.forEach(name=>caches.delete(name));
+  });
+}
+</script>
+
+</body>
+</html>
