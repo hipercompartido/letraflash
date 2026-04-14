@@ -2,13 +2,16 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <!-- 🔥 Meta viewport optimizado: sin zoom, escala inicial 1 -->
+
+  <!-- 🔥 BLOQUEO TOTAL DE ZOOM -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
-  <!-- 📱 Permite instalar como PWA -->
+
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <meta name="theme-color" content="#121212"/>
+
   <title>LetraFlash 🎮</title>
+
   <style>
     :root {
       --bg: #121212;
@@ -22,33 +25,34 @@
       --safe-top: env(safe-area-inset-top);
       --safe-bottom: env(safe-area-inset-bottom);
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    
-    /* 🔥 Desactivar zoom y selección */
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     html, body {
       overscroll-behavior: none;
-      touch-action: manipulation; /* 👈 Clave: permite scroll pero no zoom */
-      -webkit-touch-callout: none;
+      touch-action: manipulation;
       -webkit-user-select: none;
-      -khtml-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
       user-select: none;
+      overflow-x: hidden; /* 🔥 evita desbordes */
     }
-    
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      min-height: 100dvh; /* 👈 Dynamic viewport height para móviles */
+      min-height: 100dvh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: calc(8px + var(--safe-top)) calc(16px) calc(8px + var(--safe-bottom)) calc(16px);
+      padding: calc(8px + var(--safe-top)) 16px calc(8px + var(--safe-bottom));
       -webkit-tap-highlight-color: transparent;
     }
-    
+
     header {
       width: 100%;
       max-width: 500px;
@@ -57,37 +61,53 @@
       border-radius: 0 0 24px 24px;
       text-align: center;
       margin-bottom: 12px;
-      box-shadow: 0 4px 20px rgba(255,152,0,0.3);
-      flex-shrink: 0;
     }
-    header small { color: rgba(0,0,0,0.7); font-weight: 600; font-size: 13px; display: block; }
-    header h1 { font-size: clamp(24px, 6vw, 28px); margin-top: 4px; color: #000; line-height: 1.2; }
-    
+
+    header small {
+      color: rgba(0,0,0,0.7);
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    header h1 {
+      font-size: clamp(22px, 5vw, 28px);
+      margin-top: 4px;
+      color: #000;
+    }
+
     .stats {
       display: flex;
       justify-content: space-around;
-      align-items: center;
       width: 100%;
       max-width: 500px;
-      margin: 4px 0 12px;
-      flex-shrink: 0;
+      margin: 8px 0 12px;
     }
-    .stat { text-align: center; }
-    .stat-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
-    .stat-value { font-size: clamp(18px, 4.5vw, 22px); font-weight: bold; }
-    
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
+    .stat-value {
+      font-size: clamp(18px, 4vw, 22px);
+      font-weight: bold;
+    }
+
     .timer {
-      width: clamp(64px, 15vw, 72px);
-      height: clamp(64px, 15vw, 72px);
+      width: 70px;
+      height: 70px;
       border-radius: 50%;
-      background: conic-gradient(var(--success) 0deg, var(--success) 0deg, #333 0deg);
+      background: conic-gradient(var(--success) 360deg, #333 360deg);
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
-      transition: background 0.3s, transform 0.1s;
-      flex-shrink: 0;
     }
+
     .timer::before {
       content: '';
       position: absolute;
@@ -96,83 +116,60 @@
       background: var(--bg);
       border-radius: 50%;
     }
+
     .timer span {
       position: relative;
-      font-size: clamp(20px, 5vw, 24px);
+      font-size: 22px;
       font-weight: bold;
-      z-index: 1;
     }
-    .timer.urgent { animation: pulse 0.4s infinite alternate; }
-    @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.06); } }
-    
+
+    /* 🔥 GRID ARREGLADO */
     .grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: clamp(8px, 2.5vw, 12px);
+      grid-template-columns: repeat(4, minmax(0, 1fr)); /* 👈 clave */
+      gap: 10px;
       width: 100%;
       max-width: 500px;
-      flex: 1;
-      min-height: 0; /* 👈 Importante para scroll interno si fuera necesario */
-      padding: 4px 0;
+      margin: 0 auto;
     }
-    
+
+    /* 🔥 TILE FIX */
     .tile {
       aspect-ratio: 1;
-      background: linear-gradient(135deg, #2a2a2a, #1e1e1e);
-      border: 2px solid rgba(255,152,0,0.5);
-      border-radius: clamp(12px, 3vw, 16px);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: clamp(20px, 5.5vw, 26px);
+      font-size: clamp(16px, 6vmin, 24px); /* 👈 clave */
       font-weight: 800;
+      background: #1e1e1e;
+      border: 2px solid rgba(255,152,0,0.5);
+      border-radius: 14px;
       cursor: pointer;
-      transition: all 0.12s ease;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      position: relative;
-      overflow: hidden;
-      -webkit-tap-highlight-color: transparent;
     }
-    .tile::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at center, rgba(255,152,0,0.3), transparent 70%);
-      opacity: 0;
-      transition: opacity 0.2s;
+
+    .tile:active {
+      transform: scale(0.92);
     }
-    .tile:active { transform: scale(0.93); }
-    .tile.pressed { animation: pop 0.2s; }
-    @keyframes pop { 0% { transform: scale(0.93); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-    
+
     .tile.used {
       background: var(--used);
-      border-color: #444;
       color: #666;
       text-decoration: line-through;
-      cursor: not-allowed;
-      transform: none !important;
-      box-shadow: none;
     }
-    
+
     .btn-start {
       width: 100%;
       max-width: 500px;
-      padding: clamp(14px, 4vw, 16px);
+      padding: 16px;
       background: var(--success);
       color: #000;
       border: none;
-      border-radius: clamp(14px, 3.5vw, 16px);
-      font-size: clamp(16px, 4.5vw, 18px);
+      border-radius: 14px;
+      font-size: 18px;
       font-weight: bold;
-      cursor: pointer;
-      margin: clamp(16px, 4vw, 24px) 0;
-      transition: transform 0.1s, box-shadow 0.2s;
-      flex-shrink: 0;
+      margin: 20px 0;
     }
-    .btn-start:active { transform: scale(0.98); }
-    
-    /* Modal */
+
     .modal {
       display: none;
       position: fixed;
@@ -180,336 +177,121 @@
       background: rgba(0,0,0,0.85);
       align-items: center;
       justify-content: center;
-      z-index: 100;
-      padding: 20px;
-      touch-action: manipulation;
     }
-    .modal.active { display: flex; }
+
+    .modal.active {
+      display: flex;
+    }
+
     .modal-content {
       background: #1e1e1e;
       padding: 24px;
       border-radius: 20px;
+      width: 90%;
       max-width: 400px;
-      width: 100%;
       text-align: center;
-      border: 2px solid var(--accent);
-      animation: modalIn 0.3s ease-out;
-      touch-action: manipulation;
-    }
-    @keyframes modalIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    .modal h2 { font-size: clamp(28px, 7vw, 32px); margin-bottom: 12px; }
-    .modal p { color: var(--text-dim); margin: 8px 0; font-size: clamp(14px, 3.5vw, 16px); }
-    .score-box {
-      background: rgba(255,152,0,0.15);
-      padding: 16px;
-      border-radius: 12px;
-      margin: 16px 0;
-    }
-    .score-box .big { font-size: clamp(36px, 9vw, 42px); font-weight: bold; display: block; }
-    .modal-actions { display: flex; gap: 8px; margin-top: 16px; }
-    .modal-actions button {
-      flex: 1;
-      padding: 12px;
-      border: none;
-      border-radius: 10px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: clamp(14px, 3.5vw, 16px);
-      touch-action: manipulation;
-    }
-    .btn-restart { background: var(--accent); color: #000; }
-    .btn-close { background: #444; color: #fff; }
-    
-    /* 👇 Ajustes para pantallas muy pequeñas */
-    @media (max-height: 600px) {
-      body { padding-top: calc(4px + var(--safe-top)); }
-      header { padding-top: calc(12px + var(--safe-top)); margin-bottom: 8px; }
-      .stats { margin: 2px 0 8px; }
-      .grid { gap: 6px; }
-      .tile { font-size: clamp(18px, 5vw, 22px); border-radius: 12px; }
-      .btn-start { margin: 12px 0; padding: 12px; }
-    }
-    
-    @media (max-width: 320px) {
-      .grid { grid-template-columns: repeat(4, 1fr); gap: 6px; }
-      .tile { font-size: 18px; }
-      header h1 { font-size: 20px; }
     }
   </style>
 </head>
+
 <body>
-  <header>
-    <small>🎯 TEMÁTICA</small>
-    <h1 id="categoria">¡LISTOS?</h1>
-  </header>
 
-  <div class="stats">
-    <div class="stat">
-      <div class="stat-label">Letras</div>
-      <div class="stat-value" id="score">0</div>
-    </div>
-    
-    <div class="timer" id="timer">
-      <span id="timer-text">5</span>
-    </div>
-    
-    <div class="stat">
-      <div class="stat-label">Récord</div>
-      <div class="stat-value" id="record">0</div>
-    </div>
+<header>
+  <small>🎯 TEMÁTICA</small>
+  <h1 id="categoria">¡LISTOS?</h1>
+</header>
+
+<div class="stats">
+  <div class="stat">
+    <div class="stat-label">Letras</div>
+    <div class="stat-value" id="score">0</div>
   </div>
 
-  <div class="grid" id="grid"></div>
-
-  <button class="btn-start" id="btnStart" onclick="iniciarJuego()">▶️ INICIAR JUEGO</button>
-
-  <div class="modal" id="modal">
-    <div class="modal-content">
-      <h2>¡BOOM! 💥</h2>
-      <p>Se acabó el tiempo ⏱️</p>
-      <div class="score-box">
-        <span class="stat-label">Tu puntaje</span>
-        <span class="big" id="finalScore">0 ✨</span>
-        <span id="recordMsg" style="color:#69f0ae;font-weight:bold;display:none;">🎉 ¡Nuevo récord!</span>
-      </div>
-      <div class="modal-actions">
-        <button class="btn-close" onclick="cerrarModal()">Salir</button>
-        <button class="btn-restart" onclick="reiniciarDesdeModal()">Jugar otra vez</button>
-      </div>
-    </div>
+  <div class="timer" id="timer">
+    <span id="timer-text">5</span>
   </div>
 
-  <script>
-    // ⚙️ CONFIGURACIÓN
-    const ABECEDARIO = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split('');
-    const CATEGORIAS = [
-      "FRUTAS", "PAÍSES", "ANIMALES", "MARCAS", "PELÍCULAS",
-      "COLORES", "OBJETOS DE COCINA", "NOMBRES", "DEPORTES", "CANTANTES"
-    ];
-    const TIEMPO_TOTAL = 5;
+  <div class="stat">
+    <div class="stat-label">Récord</div>
+    <div class="stat-value" id="record">0</div>
+  </div>
+</div>
 
-    // 🔥 WAKE LOCK: Mantener pantalla encendida
-    let wakeLock = null;
-    async function solicitarWakeLock() {
-      if ('wakeLock' in navigator) {
-        try {
-          wakeLock = await navigator.wakeLock.request('screen');
-          wakeLock.addEventListener('release', () => {
-            //console.log('Wake Lock liberado');
-          });
-        } catch (err) {
-          //console.log(`${err.name}, ${err.message}`);
-        }
-      }
-    }
-    async function liberarWakeLock() {
-      if (wakeLock) {
-        await wakeLock.release();
-        wakeLock = null;
-      }
-    }
-    // Re-solicitar si la página vuelve a estar visible
-    document.addEventListener('visibilitychange', async () => {
-      if (wakeLock !== null && document.visibilityState === 'visible') {
-        await solicitarWakeLock();
-      }
-    });
+<div class="grid" id="grid"></div>
 
-    // 🎵 MOTOR DE AUDIO
-    let audioCtx = null;
-    function initAudio() {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-    }
-    function playTone(freq, type, duration, vol = 0.1) {
-      if (!audioCtx) return;
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = type;
-      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-      gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + duration);
-    }
-    const SFX = {
-      tick: () => playTone(800, 'square', 0.04, 0.05),
-      tickAlert: () => playTone(1000, 'square', 0.03, 0.08),
-      success: () => {
-        playTone(523.25, 'sine', 0.1, 0.15);
-        setTimeout(() => playTone(659.25, 'sine', 0.12, 0.15), 60);
-      },
-      boom: () => playTone(150, 'sawtooth', 0.4, 0.25),
-      start: () => {
-        playTone(440, 'sine', 0.1, 0.1);
-        setTimeout(() => playTone(554, 'sine', 0.1, 0.1), 100);
-        setTimeout(() => playTone(659, 'sine', 0.15, 0.1), 200);
-      }
-    };
+<button class="btn-start" onclick="iniciarJuego()">▶️ INICIAR</button>
 
-    // 🎮 ESTADO
-    let letrasUsadas = [];
-    let categoriaActual = "¡LISTOS?";
-    let tiempoRestante = TIEMPO_TOTAL;
-    let juegoActivo = false;
-    let puntaje = 0;
-    let record = parseInt(localStorage.getItem('letraflash_record')) || 0;
-    let timerInterval = null;
+<script>
+const ABECEDARIO = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split('');
+const TIEMPO_TOTAL = 5;
 
-    const grid = document.getElementById('grid');
-    const categoriaEl = document.getElementById('categoria');
-    const scoreEl = document.getElementById('score');
-    const recordEl = document.getElementById('record');
-    const timerEl = document.getElementById('timer');
-    const timerTextEl = document.getElementById('timer-text');
-    const btnStart = document.getElementById('btnStart');
-    const modal = document.getElementById('modal');
-    const finalScoreEl = document.getElementById('finalScore');
-    const recordMsgEl = document.getElementById('recordMsg');
+let usadas = [];
+let activo = false;
+let tiempo = 5;
+let puntaje = 0;
+let interval;
 
-    recordEl.textContent = record;
-    renderizarTablero();
+const grid = document.getElementById("grid");
 
-    function renderizarTablero() {
-      grid.innerHTML = '';
-      ABECEDARIO.forEach(letra => {
-        const tile = document.createElement('div');
-        tile.className = 'tile';
-        tile.textContent = letra;
-        tile.dataset.letra = letra;
-        tile.onclick = () => presionarLetra(letra);
-        tile.ontouchstart = (e) => { e.preventDefault(); presionarLetra(letra); }; // 👈 Mejor respuesta táctil
-        grid.appendChild(tile);
-      });
-    }
+ABECEDARIO.forEach(l => {
+  const div = document.createElement("div");
+  div.className = "tile";
+  div.innerText = l;
+  div.onclick = () => clickLetra(l);
+  grid.appendChild(div);
+});
 
-    function actualizarTablero() {
-      document.querySelectorAll('.tile').forEach(tile => {
-        const letra = tile.dataset.letra;
-        tile.classList.toggle('used', letrasUsadas.includes(letra));
-      });
-    }
+function iniciarJuego() {
+  usadas = [];
+  puntaje = 0;
+  tiempo = TIEMPO_TOTAL;
+  activo = true;
 
-    async function iniciarJuego() {
-      initAudio();
-      await solicitarWakeLock(); // 🔥 Mantener pantalla encendida
-      SFX.start();
-      letrasUsadas = [];
-      puntaje = 0;
-      categoriaActual = CATEGORIAS[Math.floor(Math.random() * CATEGORIAS.length)];
-      juegoActivo = true;
-      categoriaEl.textContent = categoriaActual;
-      scoreEl.textContent = puntaje;
-      btnStart.style.display = 'none';
-      actualizarTablero();
-      reiniciarTemporizador();
-    }
+  document.getElementById("score").innerText = 0;
 
-    function reiniciarTemporizador() {
-      clearInterval(timerInterval);
-      tiempoRestante = TIEMPO_TOTAL;
-      actualizarTimerUI();
-      timerInterval = setInterval(() => {
-        tiempoRestante--;
-        actualizarTimerUI();
-        if (tiempoRestante <= 2 && tiempoRestante > 0) {
-          timerEl.classList.add('urgent');
-          SFX.tickAlert();
-          if (navigator.vibrate) navigator.vibrate(50);
-        } else {
-          SFX.tick();
-        }
-        if (tiempoRestante <= 0) finalizarJuego();
-      }, 1000);
-    }
+  document.querySelectorAll(".tile").forEach(t => t.classList.remove("used"));
 
-    function actualizarTimerUI() {
-      timerTextEl.textContent = tiempoRestante;
-      const porcentaje = (tiempoRestante / TIEMPO_TOTAL) * 360;
-      const color = tiempoRestante <= 2 ? '#ff5252' : tiempoRestante <= 3 ? '#ff9800' : '#69f0ae';
-      timerEl.style.background = `conic-gradient(${color} ${porcentaje}deg, #333 ${porcentaje}deg)`;
-      if (tiempoRestante > 2) timerEl.classList.remove('urgent');
-    }
+  clearInterval(interval);
+  interval = setInterval(() => {
+    tiempo--;
+    document.getElementById("timer-text").innerText = tiempo;
+    if (tiempo <= 0) terminar();
+  }, 1000);
+}
 
-    function presionarLetra(letra) {
-      if (!juegoActivo || letrasUsadas.includes(letra)) return;
-      SFX.success();
-      if (navigator.vibrate) navigator.vibrate(20);
-      
-      letrasUsadas.push(letra);
-      puntaje++;
-      scoreEl.textContent = puntaje;
-      actualizarTablero();
-      
-      const tile = document.querySelector(`.tile[data-letra="${letra}"]`);
-      if (tile) {
-        tile.classList.add('pressed');
-        setTimeout(() => tile.classList.remove('pressed'), 200);
-      }
-      
-      reiniciarTemporizador();
-    }
+function clickLetra(l) {
+  if (!activo || usadas.includes(l)) return;
 
-    async function finalizarJuego() {
-      clearInterval(timerInterval);
-      juegoActivo = false;
-      await liberarWakeLock(); // 🔥 Liberar wake lock al terminar
-      SFX.boom();
-      if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-      
-      if (puntaje > record) {
-        record = puntaje;
-        localStorage.setItem('letraflash_record', record);
-        recordEl.textContent = record;
-        recordMsgEl.style.display = 'block';
-      } else {
-        recordMsgEl.style.display = 'none';
-      }
-      
-      finalScoreEl.textContent = `${puntaje} ✨`;
-      modal.classList.add('active');
-    }
+  usadas.push(l);
+  puntaje++;
+  tiempo = TIEMPO_TOTAL;
 
-    function cerrarModal() {
-      modal.classList.remove('active');
-      btnStart.style.display = 'block';
-      timerEl.classList.remove('urgent');
-      timerEl.style.background = `conic-gradient(#69f0ae 360deg, #333 360deg)`;
-    }
+  document.getElementById("score").innerText = puntaje;
 
-    function reiniciarDesdeModal() {
-      cerrarModal();
-      iniciarJuego();
-    }
+  document.querySelectorAll(".tile").forEach(t => {
+    if (t.innerText === l) t.classList.add("used");
+  });
+}
 
-    // Soporte teclado + prevenir comportamientos por defecto en móvil
-    document.addEventListener('keydown', (e) => {
-      if (!juegoActivo) return;
-      const letra = e.key.toUpperCase();
-      if (ABECEDARIO.includes(letra)) presionarLetra(letra);
-    });
-    
-    // 👇 Prevenir zoom por doble-tap en iOS
-    let lastTouchEnd = 0;
-    document.addEventListener('touchend', function (event) {
-      const now = Date.now();
-      if (now - lastTouchEnd <= 300) {
-        event.preventDefault();
-      }
-      lastTouchEnd = now;
-    }, false);
-    
-    // Prevenir gestos de navegación (swipe atrás/adelante)
-    document.addEventListener('touchmove', (e) => {
-      if (juegoActivo) {
-        // Permitir scroll solo si no es en el grid
-        if (!e.target.closest('.grid')) {
-          e.preventDefault();
-        }
-      }
-    }, { passive: false });
-  </script>
+function terminar() {
+  activo = false;
+  clearInterval(interval);
+  alert("Puntaje: " + puntaje);
+}
+
+/* 🔥 BLOQUEO DOBLE TAP ZOOM */
+let lastTouch = 0;
+document.addEventListener("touchend", e => {
+  const now = Date.now();
+  if (now - lastTouch < 300) e.preventDefault();
+  lastTouch = now;
+}, false);
+
+/* 🔥 BLOQUEO PINCH ZOOM */
+document.addEventListener('gesturestart', e => e.preventDefault());
+document.addEventListener('gesturechange', e => e.preventDefault());
+document.addEventListener('gestureend', e => e.preventDefault());
+</script>
+
 </body>
 </html>
