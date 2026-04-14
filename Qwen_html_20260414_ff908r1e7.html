@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LetraFlash 🎮</title>
+  <style>
+    :root {
+      --bg: #121212;
+      --card: #1e1e1e;
+      --accent: #ff9800;
+      --text: #ffffff;
+      --text-dim: #b0b0b0;
+      --used: #333;
+      --success: #69f0ae;
+      --danger: #ff5252;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 16px;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    header {
+      width: 100%;
+      max-width: 500px;
+      background: linear-gradient(135deg, var(--accent), #e65100);
+      padding: 20px;
+      border-radius: 0 0 24px 24px;
+      text-align: center;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 20px rgba(255,152,0,0.3);
+    }
+    header small { color: rgba(0,0,0,0.7); font-weight: 600; font-size: 14px; }
+    header h1 { font-size: 28px; margin-top: 4px; color: #000; }
+    
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      width: 100%;
+      max-width: 500px;
+      margin: 8px 0 16px;
+    }
+    .stat { text-align: center; }
+    .stat-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; }
+    .stat-value { font-size: 22px; font-weight: bold; }
+    
+    .timer {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: conic-gradient(var(--success) 0deg, var(--success) 0deg, #333 0deg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: background 0.3s, transform 0.1s;
+    }
+    .timer::before {
+      content: '';
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      background: var(--bg);
+      border-radius: 50%;
+    }
+    .timer span {
+      position: relative;
+      font-size: 24px;
+      font-weight: bold;
+      z-index: 1;
+    }
+    .timer.urgent { animation: pulse 0.4s infinite alternate; }
+    @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.06); } }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      width: 100%;
+      max-width: 500px;
+      flex: 1;
+    }
+    .tile {
+      aspect-ratio: 1;
+      background: linear-gradient(135deg, #2a2a2a, #1e1e1e);
+      border: 2px solid rgba(255,152,0,0.5);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.12s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      position: relative;
+      overflow: hidden;
+    }
+    .tile::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(255,152,0,0.3), transparent 70%);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .tile:hover { transform: translateY(-2px); border-color: var(--accent); }
+    .tile:hover::after { opacity: 1; }
+    .tile:active { transform: scale(0.93); }
+    .tile.pressed { animation: pop 0.2s; }
+    @keyframes pop { 0% { transform: scale(0.93); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+    
+    .tile.used {
+      background: var(--used);
+      border-color: #444;
+      color: #666;
+      text-decoration: line-through;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none;
+    }
+    
+    .btn-start {
+      width: 100%;
+      max-width: 500px;
+      padding: 16px;
+      background: var(--success);
+      color: #000;
+      border: none;
+      border-radius: 16px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 24px 0;
+      transition: transform 0.1s, box-shadow 0.2s;
+    }
+    .btn-start:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(105,240,174,0.4); }
+    .btn-start:active { transform: scale(0.98); }
+    
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.85);
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: #1e1e1e;
+      padding: 24px;
+      border-radius: 20px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      border: 2px solid var(--accent);
+      animation: modalIn 0.3s ease-out;
+    }
+    @keyframes modalIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .modal h2 { font-size: 32px; margin-bottom: 12px; }
+    .modal p { color: var(--text-dim); margin: 8px 0; }
+    .score-box {
+      background: rgba(255,152,0,0.15);
+      padding: 16px;
+      border-radius: 12px;
+      margin: 16px 0;
+    }
+    .score-box .big { font-size: 42px; font-weight: bold; display: block; }
+    .modal-actions { display: flex; gap: 8px; margin-top: 16px; }
+    .modal-actions button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-restart { background: var(--accent); color: #000; }
+    .btn-close { background: #444; color: #fff; }
+    
+    @media (max-width: 400px) {
+      .grid { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+      .tile { font-size: 22px; border-radius: 12px; }
+      header h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <small>🎯 TEMÁTICA</small>
+    <h1 id="categoria">¡LISTOS?</h1>
+  </header>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label">Letras</div>
+      <div class="stat-value" id="score">0</div>
+    </div>
+    
+    <div class="timer" id="timer">
+      <span id="timer-text">5</span>
+    </div>
+    
+    <div class="stat">
+      <div class="stat-label">Récord</div>
+      <div class="stat-value" id="record">0</div>
+    </div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <button class="btn-start" id="btnStart" onclick="iniciarJuego()">▶️ INICIAR JUEGO</button>
+
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <h2>¡BOOM! 💥</h2>
+      <p>Se acabó el tiempo ⏱️</p>
+      <div class="score-box">
+        <span class="stat-label">Tu puntaje</span>
+        <span class="big" id="finalScore">0 ✨</span>
+        <span id="recordMsg" style="color:#69f0ae;font-weight:bold;display:none;">🎉 ¡Nuevo récord!</span>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-close" onclick="cerrarModal()">Salir</button>
+        <button class="btn-restart" onclick="reiniciarDesdeModal()">Jugar otra vez</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ⚙️ CONFIGURACIÓN
+    const ABECEDARIO = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split('');
+    const CATEGORIAS = [
+      "FRUTAS", "PAÍSES", "ANIMALES", "MARCAS", "PELÍCULAS",
+      "COLORES", "OBJETOS DE COCINA", "NOMBRES", "DEPORTES", "CANTANTES"
+    ];
+    const TIEMPO_TOTAL = 5;
+
+    // 🎵 MOTOR DE AUDIO (Web Audio API - sin archivos externos)
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+    function playTone(freq, type, duration, vol = 0.1) {
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }
+    const SFX = {
+      tick: () => playTone(800, 'square', 0.04, 0.05),
+      tickAlert: () => playTone(1000, 'square', 0.03, 0.08),
+      success: () => {
+        playTone(523.25, 'sine', 0.1, 0.15);
+        setTimeout(() => playTone(659.25, 'sine', 0.12, 0.15), 60);
+      },
+      boom: () => playTone(150, 'sawtooth', 0.4, 0.25),
+      start: () => {
+        playTone(440, 'sine', 0.1, 0.1);
+        setTimeout(() => playTone(554, 'sine', 0.1, 0.1), 100);
+        setTimeout(() => playTone(659, 'sine', 0.15, 0.1), 200);
+      }
+    };
+
+    // 🎮 ESTADO
+    let letrasUsadas = [];
+    let categoriaActual = "¡LISTOS?";
+    let tiempoRestante = TIEMPO_TOTAL;
+    let juegoActivo = false;
+    let puntaje = 0;
+    let record = parseInt(localStorage.getItem('letraflash_record')) || 0;
+    let timerInterval = null;
+
+    const grid = document.getElementById('grid');
+    const categoriaEl = document.getElementById('categoria');
+    const scoreEl = document.getElementById('score');
+    const recordEl = document.getElementById('record');
+    const timerEl = document.getElementById('timer');
+    const timerTextEl = document.getElementById('timer-text');
+    const btnStart = document.getElementById('btnStart');
+    const modal = document.getElementById('modal');
+    const finalScoreEl = document.getElementById('finalScore');
+    const recordMsgEl = document.getElementById('recordMsg');
+
+    recordEl.textContent = record;
+    renderizarTablero();
+
+    function renderizarTablero() {
+      grid.innerHTML = '';
+      ABECEDARIO.forEach(letra => {
+        const tile = document.createElement('div');
+        tile.className = 'tile';
+        tile.textContent = letra;
+        tile.dataset.letra = letra;
+        tile.onclick = () => presionarLetra(letra);
+        grid.appendChild(tile);
+      });
+    }
+
+    function actualizarTablero() {
+      document.querySelectorAll('.tile').forEach(tile => {
+        const letra = tile.dataset.letra;
+        tile.classList.toggle('used', letrasUsadas.includes(letra));
+      });
+    }
+
+    function iniciarJuego() {
+      initAudio(); // Activa el contexto de audio con interacción del usuario
+      SFX.start();
+      letrasUsadas = [];
+      puntaje = 0;
+      categoriaActual = CATEGORIAS[Math.floor(Math.random() * CATEGORIAS.length)];
+      juegoActivo = true;
+      categoriaEl.textContent = categoriaActual;
+      scoreEl.textContent = puntaje;
+      btnStart.style.display = 'none';
+      actualizarTablero();
+      reiniciarTemporizador();
+    }
+
+    function reiniciarTemporizador() {
+      clearInterval(timerInterval);
+      tiempoRestante = TIEMPO_TOTAL;
+      actualizarTimerUI();
+      timerInterval = setInterval(() => {
+        tiempoRestante--;
+        actualizarTimerUI();
+        if (tiempoRestante <= 2 && tiempoRestante > 0) {
+          timerEl.classList.add('urgent');
+          SFX.tickAlert();
+          if (navigator.vibrate) navigator.vibrate(50);
+        } else {
+          SFX.tick();
+        }
+        if (tiempoRestante <= 0) finalizarJuego();
+      }, 1000);
+    }
+
+    function actualizarTimerUI() {
+      timerTextEl.textContent = tiempoRestante;
+      const porcentaje = (tiempoRestante / TIEMPO_TOTAL) * 360;
+      const color = tiempoRestante <= 2 ? '#ff5252' : tiempoRestante <= 3 ? '#ff9800' : '#69f0ae';
+      timerEl.style.background = `conic-gradient(${color} ${porcentaje}deg, #333 ${porcentaje}deg)`;
+      if (tiempoRestante > 2) timerEl.classList.remove('urgent');
+    }
+
+    function presionarLetra(letra) {
+      if (!juegoActivo || letrasUsadas.includes(letra)) return;
+      SFX.success();
+      if (navigator.vibrate) navigator.vibrate(20);
+      
+      letrasUsadas.push(letra);
+      puntaje++;
+      scoreEl.textContent = puntaje;
+      actualizarTablero();
+      
+      // Efecto visual en la ficha
+      const tile = document.querySelector(`.tile[data-letra="${letra}"]`);
+      tile.classList.add('pressed');
+      setTimeout(() => tile.classList.remove('pressed'), 200);
+      
+      reiniciarTemporizador();
+    }
+
+    function finalizarJuego() {
+      clearInterval(timerInterval);
+      juegoActivo = false;
+      SFX.boom();
+      if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+      
+      if (puntaje > record) {
+        record = puntaje;
+        localStorage.setItem('letraflash_record', record);
+        recordEl.textContent = record;
+        recordMsgEl.style.display = 'block';
+      } else {
+        recordMsgEl.style.display = 'none';
+      }
+      
+      finalScoreEl.textContent = `${puntaje} ✨`;
+      modal.classList.add('active');
+    }
+
+    function cerrarModal() {
+      modal.classList.remove('active');
+      btnStart.style.display = 'block';
+      timerEl.classList.remove('urgent');
+      timerEl.style.background = `conic-gradient(#69f0ae 360deg, #333 360deg)`;
+    }
+
+    function reiniciarDesdeModal() {
+      cerrarModal();
+      iniciarJuego();
+    }
+
+    // Soporte teclado
+    document.addEventListener('keydown', (e) => {
+      if (!juegoActivo) return;
+      const letra = e.key.toUpperCase();
+      if (ABECEDARIO.includes(letra)) presionarLetra(letra);
+    });
+  </script>
+</body>
+</html>
