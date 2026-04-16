@@ -9,7 +9,6 @@
   <title>LetraFlash 🎮</title>
   <style>
     :root {
-      --bg: #121212;
       --accent: #ff9800;
       --success: #69f0ae;
       --safe-top: env(safe-area-inset-top);
@@ -28,18 +27,16 @@
     }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--bg);
+      background: #121212;
       color: #fff;
       display: flex;
       flex-direction: column;
-      width: 100dvw; height: 100dvh;
+      height: 100dvh;
       padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* ══════════════════════════════════
-       BANNER
-    ══════════════════════════════════ */
+    /* BANNER */
     .banner {
       flex-shrink: 0;
       background: linear-gradient(135deg, var(--accent), #e65100);
@@ -47,194 +44,120 @@
       align-items: center;
       gap: 10px;
       padding: 7px 14px;
+      min-height: 54px;
     }
     .banner-tema { flex: 1; min-width: 0; }
-    .banner-tema .sub {
-      font-size: 9px; font-weight: 700;
-      color: rgba(0,0,0,0.5);
-      text-transform: uppercase; letter-spacing: 0.7px;
-      display: block;
-    }
-    .banner-tema h1 {
-      font-size: clamp(16px, 4vw, 22px);
-      font-weight: 900; color: #000; line-height: 1.1;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    /* timer */
+    .banner-tema .sub { font-size: 9px; font-weight: 700; color: rgba(0,0,0,0.5); text-transform: uppercase; letter-spacing: 0.7px; display: block; }
+    .banner-tema h1 { font-size: clamp(16px, 4vw, 22px); font-weight: 900; color: #000; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .timer {
       flex-shrink: 0;
-      width: clamp(42px, 7vw, 54px);
-      height: clamp(42px, 7vw, 54px);
+      width: 46px; height: 46px;
       border-radius: 50%;
       background: conic-gradient(rgba(0,0,0,0.75) 360deg, rgba(0,0,0,0.12) 360deg);
       display: flex; align-items: center; justify-content: center;
       position: relative;
     }
-    .timer::before {
-      content: ''; position: absolute;
-      width: 78%; height: 78%;
-      background: linear-gradient(135deg, #ffb74d, #e65100);
-      border-radius: 50%;
-    }
-    .timer span {
-      position: relative; z-index: 1;
-      font-size: clamp(15px, 3.5vw, 20px);
-      font-weight: 900; color: #000;
-    }
+    .timer::before { content: ''; position: absolute; width: 78%; height: 78%; background: linear-gradient(135deg, #ffb74d, #e65100); border-radius: 50%; }
+    .timer span { position: relative; z-index: 1; font-size: 18px; font-weight: 900; color: #000; }
     .timer.urgent { animation: pulse 0.4s infinite alternate; }
     @keyframes pulse { to { transform: scale(1.1); } }
-    /* stats */
-    .bstat { flex-shrink: 0; text-align: center; min-width: 34px; }
-    .bstat .lbl {
-      font-size: 9px; font-weight: 700;
-      color: rgba(0,0,0,0.5);
-      text-transform: uppercase; letter-spacing: 0.6px; display: block;
-    }
-    .bstat .val {
-      font-size: clamp(17px, 4vw, 22px);
-      font-weight: 900; color: #000; line-height: 1.1;
-    }
+    .bstat { flex-shrink: 0; text-align: center; min-width: 38px; }
+    .bstat .lbl { font-size: 9px; font-weight: 700; color: rgba(0,0,0,0.5); text-transform: uppercase; letter-spacing: 0.6px; display: block; }
+    .bstat .val { font-size: 20px; font-weight: 900; color: #000; line-height: 1.1; }
 
-    /* ══════════════════════════════════
-       MAIN AREA
-    ══════════════════════════════════ */
+    /* MAIN: ocupa todo el espacio restante */
     .main {
-      flex: 1; min-height: 0;
+      flex: 1;
+      min-height: 0;        /* crítico: permite que los hijos se encojan */
       display: flex;
       flex-direction: row;
+      align-items: stretch; /* los hijos se estiran a la altura completa */
     }
 
-    /* ── LETRAS ── */
+    /* PANEL DE LETRAS
+       — vertical: 2 columnas, altura = 100% del .main
+       — horizontal: 1 columna, más angosto */
     .letters-panel {
       flex-shrink: 0;
+      /* height heredada del flex padre via align-items:stretch */
       display: grid;
+      align-content: stretch; /* las filas llenan la altura */
       padding: 5px;
       gap: 4px;
-      /* vertical: 2 columnas */
+      /* VERTICAL por defecto */
       grid-template-columns: repeat(2, 1fr);
-      /* ancho fijo para 2 col en vertical */
-      width: clamp(80px, 22vw, 110px);
+      width: 26vw;
+      min-width: 72px;
+      max-width: 120px;
     }
-    /* horizontal: 1 columna, ancho mayor */
     @media (orientation: landscape) {
       .letters-panel {
         grid-template-columns: 1fr;
-        width: clamp(52px, 9vw, 72px);
-        gap: clamp(2px, 0.5vh, 4px);
+        width: clamp(44px, 8vw, 66px);
+        gap: 3px;
       }
     }
 
     .letter-btn {
-      background: linear-gradient(135deg, #2e2e2e, #1c1c1c);
-      border: 2px solid rgba(255,152,0,0.45);
-      border-radius: 8px;
+      background: #252525;
+      border: 2px solid rgba(255,152,0,0.5);
+      border-radius: 7px;
       display: flex; align-items: center; justify-content: center;
       font-weight: 900;
+      font-size: clamp(14px, 4.5vw, 24px);
       cursor: pointer;
       transition: transform 0.1s;
       -webkit-tap-highlight-color: transparent;
-      /* altura automática según grilla */
-      aspect-ratio: 1;
+      /* SIN aspect-ratio — el alto lo define el grid */
     }
-    /* tamaño de fuente según orientación */
-    .letter-btn { font-size: clamp(14px, 4vw, 20px); }
     @media (orientation: landscape) {
-      .letter-btn { font-size: clamp(12px, 2.5vh, 18px); aspect-ratio: unset; height: 100%; }
+      .letter-btn { font-size: clamp(11px, 2.4vh, 17px); }
     }
-    .letter-btn:active { transform: scale(0.87); }
+    .letter-btn:active { transform: scale(0.86); }
     .letter-btn.pressed { animation: pop 0.18s ease-out; }
     @keyframes pop { 55%{ transform: scale(1.12); } 100%{ transform: scale(1); } }
-    .letter-btn.used {
-      background: #1a1a1a;
-      border-color: #2a2a2a;
-      color: #444;
-      text-decoration: line-through;
-      cursor: not-allowed;
-      transform: none !important;
-    }
+    .letter-btn.used { background: #1a1a1a; border-color: #2a2a2a; color: #3a3a3a; text-decoration: line-through; cursor: not-allowed; transform: none !important; }
 
-    /* ── ÁREA DERECHA ── */
+    /* ÁREA DERECHA */
     .right-area {
       flex: 1; min-width: 0;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      padding: 14px 16px; gap: 12px;
+      padding: 14px 16px; gap: 14px;
     }
-
-    /* temática grande antes de iniciar */
-    .tema-big {
-      text-align: center;
-    }
-    .tema-big .pre {
-      font-size: 11px; font-weight: 700;
-      color: rgba(255,152,0,0.7);
-      text-transform: uppercase; letter-spacing: 1px;
-      display: block; margin-bottom: 4px;
-    }
-    .tema-big .nombre {
-      font-size: clamp(28px, 7vw, 42px);
-      font-weight: 900;
-      color: var(--accent);
-      line-height: 1.1;
-    }
-    .tema-big .desc {
-      font-size: clamp(11px, 2.5vw, 13px);
-      color: #666; margin-top: 6px;
-    }
-
+    .tema-big { text-align: center; }
+    .tema-big .pre { font-size: 11px; font-weight: 700; color: rgba(255,152,0,0.7); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 6px; }
+    .tema-big .nombre { font-size: clamp(26px, 8vw, 44px); font-weight: 900; color: var(--accent); line-height: 1.1; }
+    .tema-big .desc { font-size: 12px; color: #555; margin-top: 8px; line-height: 1.5; }
     .btn-start {
       width: 100%; max-width: 260px;
-      padding: clamp(12px, 2.5vh, 15px);
+      padding: 14px;
       background: var(--success); color: #000;
       border: none; border-radius: 13px;
-      font-size: clamp(14px, 3vw, 17px);
-      font-weight: 800; cursor: pointer;
-      transition: transform 0.1s;
+      font-size: 16px; font-weight: 800;
+      cursor: pointer; transition: transform 0.1s;
     }
     .btn-start:active { transform: scale(0.97); }
 
-    /* ══════════════════════════════════
-       MODAL
-    ══════════════════════════════════ */
-    .modal {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.88);
-      align-items: center; justify-content: center;
-      z-index: 100; padding: 16px;
-      touch-action: manipulation;
-    }
+    /* MODAL */
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); align-items: center; justify-content: center; z-index: 100; padding: 16px; touch-action: manipulation; }
     .modal.active { display: flex; }
-    .modal-box {
-      background: #1e1e1e;
-      padding: 20px 22px; border-radius: 20px;
-      max-width: 320px; width: 100%;
-      text-align: center;
-      border: 2px solid var(--accent);
-      animation: mIn 0.25s ease-out;
-    }
+    .modal-box { background: #1e1e1e; padding: 20px 22px; border-radius: 20px; max-width: 320px; width: 100%; text-align: center; border: 2px solid var(--accent); animation: mIn 0.25s ease-out; }
     @keyframes mIn { from{ transform: scale(0.86); opacity: 0; } }
-    .modal-box h2 { font-size: clamp(22px, 5vw, 28px); margin-bottom: 6px; }
+    .modal-box h2 { font-size: 26px; margin-bottom: 6px; }
     .modal-box p  { color: #888; font-size: 13px; }
-    .score-box {
-      background: rgba(255,152,0,0.13);
-      padding: 13px; border-radius: 11px; margin: 12px 0;
-    }
+    .score-box { background: rgba(255,152,0,0.13); padding: 13px; border-radius: 11px; margin: 12px 0; }
     .score-box .slbl { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px; }
-    .score-box .big  { font-size: clamp(30px, 7vw, 36px); font-weight: 900; display: block; }
+    .score-box .big  { font-size: 34px; font-weight: 900; display: block; }
     .rec-msg { color: var(--success); font-weight: 700; font-size: 13px; display: none; margin-top: 4px; }
     .modal-actions { display: flex; gap: 8px; margin-top: 12px; }
-    .modal-actions button {
-      flex: 1; padding: 11px; border: none; border-radius: 10px;
-      font-weight: 700; cursor: pointer; font-size: 14px;
-      touch-action: manipulation;
-    }
+    .modal-actions button { flex: 1; padding: 11px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px; touch-action: manipulation; }
     .btn-restart { background: var(--accent); color: #000; }
     .btn-close   { background: #3a3a3a; color: #fff; }
   </style>
 </head>
 <body>
 
-  <!-- BANNER -->
   <div class="banner">
     <div class="banner-tema">
       <span class="sub">🎯 Temática</span>
@@ -245,11 +168,10 @@
     <div class="bstat"><span class="lbl">Récord</span><span class="val" id="record">0</span></div>
   </div>
 
-  <!-- MAIN -->
   <div class="main">
     <div class="letters-panel" id="lettersPanel"></div>
     <div class="right-area" id="rightArea">
-      <div class="tema-big" id="temaBig">
+      <div class="tema-big">
         <span class="pre">próxima temática</span>
         <div class="nombre" id="temaPreview">—</div>
         <div class="desc">Nombrá algo de esa categoría<br>por cada letra que presionés</div>
@@ -258,7 +180,6 @@
     </div>
   </div>
 
-  <!-- MODAL -->
   <div class="modal" id="modal">
     <div class="modal-box">
       <h2>¡BOOM! 💥</h2>
@@ -277,36 +198,22 @@
 
   <script>
     const ABECEDARIO = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split('');
-    const CATEGORIAS = [
-      "FRUTAS","PAÍSES","ANIMALES","MARCAS","PELÍCULAS",
-      "COLORES","OBJETOS DE COCINA","NOMBRES","DEPORTES","CANTANTES"
-    ];
+    const CATEGORIAS = ["FRUTAS","PAÍSES","ANIMALES","MARCAS","PELÍCULAS","COLORES","OBJETOS DE COCINA","NOMBRES","DEPORTES","CANTANTES"];
     const TIEMPO_TOTAL = 5;
 
     let wakeLock = null;
-    async function solicitarWakeLock() {
-      if ('wakeLock' in navigator) try { wakeLock = await navigator.wakeLock.request('screen'); } catch {}
-    }
-    async function liberarWakeLock() {
-      if (wakeLock) { await wakeLock.release(); wakeLock = null; }
-    }
-    document.addEventListener('visibilitychange', async () => {
-      if (wakeLock && document.visibilityState === 'visible') await solicitarWakeLock();
-    });
+    async function solicitarWakeLock() { if ('wakeLock' in navigator) try { wakeLock = await navigator.wakeLock.request('screen'); } catch {} }
+    async function liberarWakeLock()   { if (wakeLock) { await wakeLock.release(); wakeLock = null; } }
+    document.addEventListener('visibilitychange', async () => { if (wakeLock && document.visibilityState==='visible') await solicitarWakeLock(); });
 
     let audioCtx = null;
-    function initAudio() {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-    }
-    function playTone(f, t, d, v=0.1) {
+    function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); if (audioCtx.state==='suspended') audioCtx.resume(); }
+    function playTone(f,t,d,v=0.1) {
       if (!audioCtx) return;
       const o=audioCtx.createOscillator(), g=audioCtx.createGain();
       o.type=t; o.frequency.setValueAtTime(f,audioCtx.currentTime);
-      g.gain.setValueAtTime(v,audioCtx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+d);
-      o.connect(g); g.connect(audioCtx.destination);
-      o.start(); o.stop(audioCtx.currentTime+d);
+      g.gain.setValueAtTime(v,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+d);
+      o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+d);
     }
     const SFX = {
       tick:      ()=>playTone(800,'square',0.04,0.05),
@@ -316,21 +223,15 @@
       start:     ()=>{ playTone(440,'sine',0.1,0.1); setTimeout(()=>playTone(554,'sine',0.1,0.1),100); setTimeout(()=>playTone(659,'sine',0.15,0.1),200); }
     };
 
-    let letrasUsadas=[], tiempoRestante=TIEMPO_TOTAL;
-    let juegoActivo=false, puntaje=0, timerInterval=null;
+    let letrasUsadas=[], tiempoRestante=TIEMPO_TOTAL, juegoActivo=false, puntaje=0, timerInterval=null;
     let record = parseInt(localStorage.getItem('lf_record'))||0;
     let proxCategoria = '';
 
-    const categoriaEl  = document.getElementById('categoria');
-    const scoreEl      = document.getElementById('score');
-    const recordEl     = document.getElementById('record');
-    const timerEl      = document.getElementById('timer');
-    const timerTextEl  = document.getElementById('timer-text');
-    const rightArea    = document.getElementById('rightArea');
-    const temaPreview  = document.getElementById('temaPreview');
-    const modal        = document.getElementById('modal');
-    const finalScoreEl = document.getElementById('finalScore');
-    const recordMsgEl  = document.getElementById('recordMsg');
+    const categoriaEl=document.getElementById('categoria'), scoreEl=document.getElementById('score'),
+          recordEl=document.getElementById('record'), timerEl=document.getElementById('timer'),
+          timerTextEl=document.getElementById('timer-text'), rightArea=document.getElementById('rightArea'),
+          modal=document.getElementById('modal'), finalScoreEl=document.getElementById('finalScore'),
+          recordMsgEl=document.getElementById('recordMsg');
 
     recordEl.textContent = record;
     sortearProxima();
@@ -338,7 +239,8 @@
 
     function sortearProxima() {
       proxCategoria = CATEGORIAS[Math.floor(Math.random()*CATEGORIAS.length)];
-      temaPreview.textContent = proxCategoria;
+      const el = document.getElementById('temaPreview');
+      if (el) el.textContent = proxCategoria;
     }
 
     function renderLetras() {
@@ -365,12 +267,10 @@
       initAudio();
       await solicitarWakeLock();
       SFX.start();
-      letrasUsadas = [];
-      puntaje = 0;
+      letrasUsadas = []; puntaje = 0;
       categoriaEl.textContent = proxCategoria;
       scoreEl.textContent = 0;
       juegoActivo = true;
-      // limpiar área derecha
       rightArea.innerHTML = '';
       actualizarLetras();
       reiniciarTemporizador();
@@ -383,59 +283,45 @@
       timerInterval = setInterval(()=>{
         tiempoRestante--;
         actualizarTimerUI();
-        if (tiempoRestante<=2 && tiempoRestante>0) {
-          timerEl.classList.add('urgent');
-          SFX.tickAlert();
-          if (navigator.vibrate) navigator.vibrate(50);
-        } else { SFX.tick(); }
+        if (tiempoRestante<=2 && tiempoRestante>0) { timerEl.classList.add('urgent'); SFX.tickAlert(); if(navigator.vibrate)navigator.vibrate(50); }
+        else SFX.tick();
         if (tiempoRestante<=0) finalizarJuego();
       }, 1000);
     }
 
     function actualizarTimerUI() {
       timerTextEl.textContent = tiempoRestante;
-      const deg = (tiempoRestante/TIEMPO_TOTAL)*360;
-      const a = tiempoRestante<=2 ? 1 : tiempoRestante<=3 ? 0.85 : 0.7;
-      timerEl.style.background = `conic-gradient(rgba(0,0,0,${a}) ${deg}deg, rgba(0,0,0,0.12) ${deg}deg)`;
+      const deg=(tiempoRestante/TIEMPO_TOTAL)*360, a=tiempoRestante<=2?1:tiempoRestante<=3?0.85:0.7;
+      timerEl.style.background=`conic-gradient(rgba(0,0,0,${a}) ${deg}deg, rgba(0,0,0,0.12) ${deg}deg)`;
       if (tiempoRestante>2) timerEl.classList.remove('urgent');
     }
 
     function presionarLetra(letra) {
       if (!juegoActivo || letrasUsadas.includes(letra)) return;
-      SFX.success();
-      if (navigator.vibrate) navigator.vibrate(18);
-      letrasUsadas.push(letra);
-      puntaje++;
-      scoreEl.textContent = puntaje;
+      SFX.success(); if(navigator.vibrate)navigator.vibrate(18);
+      letrasUsadas.push(letra); puntaje++; scoreEl.textContent=puntaje;
       actualizarLetras();
-      const el = document.querySelector(`.letter-btn[data-letra="${letra}"]`);
-      if (el) { el.classList.add('pressed'); setTimeout(()=>el.classList.remove('pressed'),180); }
+      const el=document.querySelector(`.letter-btn[data-letra="${letra}"]`);
+      if(el){el.classList.add('pressed');setTimeout(()=>el.classList.remove('pressed'),180);}
       reiniciarTemporizador();
     }
 
     async function finalizarJuego() {
-      clearInterval(timerInterval);
-      juegoActivo = false;
-      await liberarWakeLock();
-      SFX.boom();
-      if (navigator.vibrate) navigator.vibrate([100,50,100]);
-      if (puntaje>record) {
-        record=puntaje;
-        localStorage.setItem('lf_record',record);
-        recordEl.textContent=record;
-        recordMsgEl.style.display='block';
-      } else { recordMsgEl.style.display='none'; }
+      clearInterval(timerInterval); juegoActivo=false;
+      await liberarWakeLock(); SFX.boom(); if(navigator.vibrate)navigator.vibrate([100,50,100]);
+      if(puntaje>record){record=puntaje;localStorage.setItem('lf_record',record);recordEl.textContent=record;recordMsgEl.style.display='block';}
+      else recordMsgEl.style.display='none';
       finalScoreEl.textContent=`${puntaje} ✨`;
       modal.classList.add('active');
     }
 
     function restaurarRightArea() {
       sortearProxima();
-      rightArea.innerHTML = `
+      rightArea.innerHTML=`
         <div class="tema-big">
           <span class="pre">próxima temática</span>
-          <div class="nombre" style="font-size:clamp(28px,7vw,42px);font-weight:900;color:var(--accent);line-height:1.1">${proxCategoria}</div>
-          <div class="desc" style="font-size:clamp(11px,2.5vw,13px);color:#666;margin-top:6px">Nombrá algo de esa categoría<br>por cada letra que presionés</div>
+          <div class="nombre">${proxCategoria}</div>
+          <div class="desc">Nombrá algo de esa categoría<br>por cada letra que presionés</div>
         </div>
         <button class="btn-start" onclick="iniciarJuego()">▶️ INICIAR JUEGO</button>`;
     }
@@ -445,33 +331,16 @@
       timerEl.classList.remove('urgent');
       timerEl.style.background=`conic-gradient(rgba(0,0,0,0.7) 360deg, rgba(0,0,0,0.12) 360deg)`;
       categoriaEl.textContent='¡LISTOS?';
-      actualizarLetras(); // reset visual letras
-      letrasUsadas=[];
-      actualizarLetras();
+      letrasUsadas=[]; actualizarLetras();
       restaurarRightArea();
     }
 
-    function reiniciarDesdeModal() {
-      cerrarModal();
-      iniciarJuego();
-    }
+    function reiniciarDesdeModal() { cerrarModal(); iniciarJuego(); }
 
-    document.addEventListener('keydown',(e)=>{
-      if (!juegoActivo) return;
-      const l=e.key.toUpperCase();
-      if (ABECEDARIO.includes(l)) presionarLetra(l);
-    });
-
+    document.addEventListener('keydown',(e)=>{ if(!juegoActivo)return; const l=e.key.toUpperCase(); if(ABECEDARIO.includes(l))presionarLetra(l); });
     let lastTap=0;
-    document.addEventListener('touchend',(e)=>{
-      const now=Date.now();
-      if (now-lastTap<=300) e.preventDefault();
-      lastTap=now;
-    },false);
-
-    document.addEventListener('touchmove',(e)=>{
-      if (juegoActivo) e.preventDefault();
-    },{passive:false});
+    document.addEventListener('touchend',(e)=>{ const now=Date.now(); if(now-lastTap<=300)e.preventDefault(); lastTap=now; },false);
+    document.addEventListener('touchmove',(e)=>{ if(juegoActivo)e.preventDefault(); },{passive:false});
   </script>
 </body>
 </html>
