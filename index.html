@@ -6,14 +6,13 @@
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <meta name="theme-color" content="#121212"/>
-  <!-- ✅ Favicon integrado (sin 404) -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
   <title>LetraFlash 🎮</title>
   <style>
     :root {
       --bg: #121212; --surface: #1a1a1a; --surface-light: #252525;
       --accent: #ff9800; --success: #69f0ae; --danger: #ff5252;
-      --text: #fff; --text-dim: #b0b0b0;
+      --text: #fff; --text-dim: #888;
       --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom);
       --p1: #4fc3f7; --p2: #f06292; --p3: #aed581; --p4: #ffb74d; --p5: #ba68c8; --p6: #ff8a65;
     }
@@ -32,7 +31,17 @@
     }
     .banner-info { flex: 1; min-width: 0; }
     .banner-info .label { font-size: 9px; font-weight: 700; color: rgba(0,0,0,0.6); text-transform: uppercase; letter-spacing: 0.8px; display: block; }
-    .banner-info h1 { font-size: clamp(16px, 4vw, 20px); font-weight: 900; color: #000; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .banner-info h1 { 
+      font-size: clamp(18px, 5vw, 24px); font-weight: 900; color: #000; 
+      line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.3);
+    }
+    .banner-info h1.highlight {
+      animation: pulseName 1.5s infinite;
+      font-size: clamp(20px, 6vw, 28px);
+    }
+    @keyframes pulseName { 0%,100%{opacity:1} 50%{opacity:0.85} }
+    
     .timer {
       flex-shrink: 0; width: 48px; height: 48px; border-radius: 50%;
       background: conic-gradient(rgba(0,0,0,0.8) 360deg, rgba(0,0,0,0.1) 360deg);
@@ -42,6 +51,7 @@
     .timer span { position: relative; z-index: 1; font-size: 18px; font-weight: 900; color: #000; }
     .timer.urgent { animation: pulse 0.4s infinite alternate; }
     @keyframes pulse { to { transform: scale(1.08); } }
+    
     .stats { display: flex; gap: 14px; }
     .stat { text-align: center; } .stat .lbl { font-size: 9px; font-weight: 700; color: rgba(0,0,0,0.6); text-transform: uppercase; letter-spacing: 0.6px; display: block; }
     .stat .val { font-size: 18px; font-weight: 900; color: #000; line-height: 1.1; }
@@ -57,19 +67,28 @@
       border-radius: 12px; font-size: 18px; font-weight: 700; color: var(--accent); 
     }
 
+    /* GRID - solo visible en Clásico */
     .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(6px, 2vw, 10px); width: 100%; max-width: 420px; aspect-ratio: 1 / 1; max-height: 100%; padding: 8px; }
     .tile { background: var(--surface-light); border: 2px solid rgba(255,152,0,0.4); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: clamp(16px, 5vw, 24px); font-weight: 900; cursor: pointer; transition: transform 0.12s; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
     .tile:active { transform: scale(0.92); } .tile.pressed { animation: pop 0.16s ease-out; }
     @keyframes pop { 50% { transform: scale(1.1); } }
     .tile.used { background: #151515; border-color: #2a2a2a; color: #444; text-decoration: line-through; cursor: default; transform: none !important; box-shadow: none; }
 
-    .desafio-wrap { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px; }
-    .desafio-letter { font-size: clamp(64px, 20vw, 110px); font-weight: 900; color: var(--accent); text-shadow: 0 4px 24px rgba(255,152,0,0.35); line-height: 1; }
-    .desafio-sub { color: var(--text-dim); font-size: 14px; }
-    .actions { display: flex; gap: 10px; width: 100%; max-width: 280px; margin-top: 8px; }
-    .btn-action { flex: 1; padding: 14px; border: none; border-radius: 12px; font-weight: 800; font-size: 15px; cursor: pointer; transition: transform 0.1s; }
+    /* DESAFÍO - letra única + botones claros */
+    .desafio-wrap { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; max-width: 400px; padding: 10px; }
+    .desafio-letter { 
+      font-size: clamp(70px, 22vw, 120px); font-weight: 900; color: var(--accent); 
+      text-shadow: 0 4px 30px rgba(255,152,0,0.5); line-height: 1; 
+      animation: glowLetter 2s infinite alternate;
+    }
+    @keyframes glowLetter { from{text-shadow:0 4px 20px rgba(255,152,0,0.4)} to{text-shadow:0 4px 40px rgba(255,152,0,0.8)} }
+    .desafio-instr { color: var(--text-dim); font-size: 15px; text-align: center; line-height: 1.5; }
+    .desafio-actions { display: flex; gap: 12px; width: 100%; margin-top: 8px; }
+    .btn-action { flex: 1; padding: 16px 12px; border: none; border-radius: 14px; font-weight: 800; font-size: 15px; cursor: pointer; transition: transform 0.1s; display: flex; flex-direction: column; align-items: center; gap: 4px; }
     .btn-action:active { transform: scale(0.96); }
-    .btn-ok { background: var(--success); color: #000; } .btn-skip { background: var(--surface-light); color: var(--text-dim); }
+    .btn-ok { background: var(--success); color: #000; } 
+    .btn-skip { background: var(--surface-light); color: var(--text-dim); }
+    .btn-hint { font-size: 11px; font-weight: 500; opacity: 0.9; margin-top: 2px; }
 
     .fab {
       position: absolute; bottom: 24px; right: 20px; width: 56px; height: 56px;
@@ -80,7 +99,7 @@
     .fab:active { transform: scale(0.85); }
 
     .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.9); backdrop-filter: blur(6px);
+      position: fixed; inset: 0; background: rgba(0,0,0,0.92); backdrop-filter: blur(6px);
       display: flex; align-items: center; justify-content: center; z-index: 100;
       opacity: 0; pointer-events: none; transition: opacity 0.2s;
     }
@@ -126,6 +145,7 @@
       .grid { width: 90%; }
       .modal-box { max-height: 90vh; padding: 18px; }
       .fab { bottom: 16px; right: 16px; width: 50px; height: 50px; font-size: 22px; }
+      .desafio-letter { font-size: clamp(60px, 12vh, 90px); }
     }
   </style>
 </head>
@@ -144,24 +164,28 @@
     </header>
 
     <main class="stage">
-      <!-- PANTALLA IDLE (antes de empezar) -->
       <div id="idleScreen" class="screen">
         <div class="idle-title">LetraFlash ⚡</div>
         <div class="idle-sub">Tocá ⚙️ para configurar jugadores<br>y empezar la partida</div>
         <div class="idle-cat">Próxima: <span id="idleCat">FRUTAS</span></div>
       </div>
 
-      <!-- PANTALLA DE JUEGO -->
       <div id="gameScreen" class="screen hidden">
         <!-- MODO CLÁSICO: grilla de letras -->
         <div id="clasicoView" class="grid"></div>
-        <!-- MODO DESAFÍO: una letra grande + botones -->
+        <!-- MODO DESAFÍO: letra única + botones con ayuda -->
         <div id="desafioView" class="desafio-wrap hidden">
           <div class="desafio-letter" id="desafioLetter">?</div>
-          <div class="desafio-sub">Nombrá algo de la temática</div>
-          <div class="actions">
-            <button class="btn-action btn-ok" onclick="endRound(true)">✅ ACERTÉ</button>
-            <button class="btn-action btn-skip" onclick="endRound(false)">⏭️ PASAR</button>
+          <div class="desafio-instr">Pensá una palabra de la temática<br>que empiece con esta letra</div>
+          <div class="desafio-actions">
+            <button class="btn-action btn-ok" onclick="endRound(true)">
+              ✅ ACERTÉ
+              <span class="btn-hint">Suma 1 punto</span>
+            </button>
+            <button class="btn-action btn-skip" onclick="endRound(false)">
+              ⏭️ PASAR
+              <span class="btn-hint">0 puntos, sigue el siguiente</span>
+            </button>
           </div>
         </div>
       </div>
@@ -219,19 +243,19 @@
   </div>
 
   <script>
-    // ⚙️ CONFIGURACIÓN
+    // ⚙️ CONFIG
     const ABC = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split('');
     const CATS = ["FRUTAS","PAÍSES","ANIMALES","MARCAS","PELÍCULAS","COLORES","COCINA","NOMBRES","DEPORTES","CANTANTES"];
     const TIME = { clasico: 5, desafio: 15 };
     const COLORS = ['var(--p1)','var(--p2)','var(--p3)','var(--p4)','var(--p5)','var(--p6)'];
 
-    // 🎮 ESTADO
-    let players = [], mode = 'random', gMode = 'clasico', order = [], tIdx = 0, round = 1, isMulti = false;
-    let used = [], cat = "", timeLeft = TIME.clasico, pts = 0, tInt = null, active = false, letraAsig = '';
-    let useNames = true, record = parseInt(localStorage.getItem('lf_record')) || 0;
-    let nextCat = CATS[Math.floor(Math.random() * CATS.length)];
+    // 🎮 STATE
+    let players=[], mode='random', gMode='clasico', order=[], tIdx=0, round=1, isMulti=false;
+    let used=[], cat="", timeLeft=TIME.clasico, pts=0, tInt=null, active=false, letraAsig='';
+    let useNames=true, record=parseInt(localStorage.getItem('lf_record'))||0;
+    let nextCat = CATS[Math.floor(Math.random()*CATS.length)];
 
-    // 🖥️ ELEMENTOS DOM
+    // 🖥️ DOM
     const el = {
       bannerLbl: document.getElementById('bannerLabel'), bannerTxt: document.getElementById('bannerText'), 
       timer: document.getElementById('timer'), tText: document.getElementById('timerText'),
@@ -247,12 +271,12 @@
       resNext: document.getElementById('resNext'), resBtn: document.getElementById('resBtn')
     };
 
-    // ✅ INICIALIZACIÓN
+    // ✅ INIT
     el.s2.textContent = record;
     el.idleCat.textContent = nextCat;
     renderGrid();
 
-    // ⚙️ CONFIGURACIÓN
+    // ⚙️ SETTINGS
     document.getElementById('nameToggle').addEventListener('change', e => { 
       useNames = e.target.checked; 
       el.input.disabled = !useNames; 
@@ -280,7 +304,7 @@
       ).join('');
     }
 
-    // 🎮 LÓGICA DEL JUEGO
+    // 🎮 GAME
     function startGame() {
       closeSettings();
       isMulti = players.length > 1;
@@ -303,10 +327,10 @@
       
       if(gMode === 'clasico') {
         // === MODO CLÁSICO ===
-        // Tocá letras → decí palabra de la temática → cada letra suma 1 pt y REINICIA timer
         el.bannerLbl.textContent = "🎯 Temática"; 
         el.bannerTxt.textContent = cat; 
         el.bannerTxt.style.color = 'var(--accent)';
+        el.bannerTxt.classList.remove('highlight');
         el.s1l.textContent = isMulti ? "Puntos Totales" : "Letras"; 
         el.s2l.textContent = "Ronda";
         el.s1.textContent = isMulti ? p.pts : 0; 
@@ -317,18 +341,17 @@
         renderGrid(); updateTiles();
       } else {
         // === MODO DESAFÍO ===
-        // La app te da UNA letra aleatoria. Tenés 15s para pensar una palabra.
-        // ✅ ACERTÉ = +1 pt / ⏭️ PASAR = 0 pts
         letraAsig = ABC[Math.floor(Math.random() * ABC.length)];
         el.bannerLbl.textContent = isMulti ? "🎯 Turno de" : "🎯 Letra";
-        el.bannerTxt.textContent = isMulti ? `${p.name} : Letra ${letraAsig}` : `Letra ${letraAsig}`;
-        el.bannerTxt.style.color = p.color;
+        // ✅ NOMBRE DESTACADO con color y animación
+        el.bannerTxt.innerHTML = isMulti ? `<span style="color:${p.color}" class="highlight">${p.name}</span> : Letra ${letraAsig}` : `Letra ${letraAsig}`;
+        el.bannerTxt.style.color = isMulti ? p.color : 'var(--accent)';
         el.s1l.textContent = isMulti ? "Puntos Totales" : "Puntos"; 
         el.s2l.textContent = "Ronda";
         el.s1.textContent = isMulti ? p.pts : 0; 
         el.s2.textContent = round;
         el.desafio.classList.remove('hidden'); 
-        el.clasico.classList.add('hidden');
+        el.clasico.classList.add('hidden'); // ✅ GRID OCULTA en Desafío
         el.dLetter.textContent = letraAsig; 
         pts = 0; timeLeft = TIME.desafio;
       }
@@ -341,7 +364,7 @@
       updateTimerUI();
       
       tInt = setInterval(() => {
-        // ✅ GUARD: si ya terminó, no seguir decrementando
+        // ✅ GUARD CRÍTICO: si llegó a 0, terminar inmediatamente
         if(timeLeft <= 0) {
           clearInterval(tInt);
           endRound(gMode === 'clasico');
@@ -360,10 +383,12 @@
     }
 
     function updateTimerUI() {
-      el.tText.textContent = timeLeft; 
-      const max = TIME[gMode], deg = (timeLeft / max) * 360, a = timeLeft <= 3 ? 1 : timeLeft <= Math.ceil(max * 0.6) ? 0.8 : 0.6;
+      // ✅ Evitar mostrar negativos
+      const displayTime = Math.max(0, timeLeft);
+      el.tText.textContent = displayTime; 
+      const max = TIME[gMode], deg = (displayTime / max) * 360, a = displayTime <= 3 ? 1 : displayTime <= Math.ceil(max * 0.6) ? 0.8 : 0.6;
       el.timer.style.background = `conic-gradient(rgba(0,0,0,${a}) ${deg}deg, rgba(0,0,0,0.1) ${deg}deg)`;
-      if(timeLeft > 3) el.timer.classList.remove('urgent');
+      if(displayTime > 3) el.timer.classList.remove('urgent');
     }
 
     function tap(l) { 
@@ -374,7 +399,7 @@
       updateTiles();
       const t = document.querySelector(`.tile[data-l="${l}"]`); 
       if(t) { t.classList.add('pressed'); setTimeout(()=>t.classList.remove('pressed'),160); } 
-      // ✅ REINICIAR TIMER al tocar letra válida
+      // ✅ REINICIAR TIMER
       startTimer(); 
     }
     
@@ -394,7 +419,6 @@
       clearInterval(tInt); active = false; 
       playTone(150,'sawtooth',0.4,0.25); if(navigator.vibrate) navigator.vibrate([100,50,100]);
       
-      // Calcular puntos: en clásico = letras tocadas, en desafío = 1 si acertó
       let suma = gMode === 'clasico' ? pts : (ok ? 1 : 0);
       if(isMulti) order[tIdx].pts += suma;
       
@@ -426,12 +450,13 @@
       el.resModal.classList.remove('active'); relWake(); active = false; el.timer.classList.remove('urgent');
       el.game.classList.add('hidden'); el.idle.classList.remove('hidden');
       el.bannerLbl.textContent = "📖 Temática"; el.bannerTxt.textContent = "¡LISTOS?"; el.bannerTxt.style.color = 'var(--accent)';
+      el.bannerTxt.classList.remove('highlight');
       el.s1.textContent = 0; el.s2.textContent = record;
       nextCat = CATS[Math.floor(Math.random() * CATS.length)];
       el.idleCat.textContent = nextCat;
     };
 
-    // 🔊 AUDIO & 🔥 WAKE LOCK
+    // 🔊 AUDIO & 🔥 WAKE
     let ac; function initAudio(){ if(!ac) ac = new(window.AudioContext||window.webkitAudioContext)(); if(ac.state==='suspended') ac.resume(); }
     function playTone(f,t,d,v=0.1){ if(!ac) return; const o=ac.createOscillator(),g=ac.createGain(); o.type=t; o.frequency.setValueAtTime(f,ac.currentTime); g.gain.setValueAtTime(v,ac.currentTime); g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+d); o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime+d); }
     let wl=null; async function reqWake(){ if('wakeLock'in navigator) try{ wl=await navigator.wakeLock.request('screen'); }catch{} } 
