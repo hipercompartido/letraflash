@@ -9,53 +9,35 @@
   <title>LetraFlash 🎮</title>
   <style>
     :root {
-      --accent: #ff9800;
-      --success: #69f0ae;
-      --safe-top: env(safe-area-inset-top);
-      --safe-bottom: env(safe-area-inset-bottom);
-      --safe-left: env(safe-area-inset-left);
-      --safe-right: env(safe-area-inset-right);
+      --accent: #ff9800; --success: #69f0ae; --danger: #ff5252;
+      --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom);
+      --p1: #4fc3f7; --p2: #f06292; --p3: #aed581; --p4: #ffb74d; --p5: #ba68c8; --p6: #ff8a65;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
       width: 100dvw; height: 100dvh;
-      overscroll-behavior: none;
-      touch-action: manipulation;
-      -webkit-touch-callout: none;
-      -webkit-user-select: none;
-      user-select: none;
+      overscroll-behavior: none; touch-action: manipulation;
+      -webkit-touch-callout: none; -webkit-user-select: none; user-select: none;
     }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #121212;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      height: 100dvh;
-      padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
+      background: #121212; color: #fff; display: flex; flex-direction: column;
+      height: 100dvh; padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
       -webkit-tap-highlight-color: transparent;
     }
 
     /* BANNER */
     .banner {
-      flex-shrink: 0;
-      background: linear-gradient(135deg, var(--accent), #e65100);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 7px 14px;
-      min-height: 54px;
+      flex-shrink: 0; background: linear-gradient(135deg, var(--accent), #e65100);
+      display: flex; align-items: center; gap: 10px; padding: 7px 14px; min-height: 54px;
     }
     .banner-tema { flex: 1; min-width: 0; }
     .banner-tema .sub { font-size: 9px; font-weight: 700; color: rgba(0,0,0,0.5); text-transform: uppercase; letter-spacing: 0.7px; display: block; }
     .banner-tema h1 { font-size: clamp(16px, 4vw, 22px); font-weight: 900; color: #000; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .timer {
-      flex-shrink: 0;
-      width: 46px; height: 46px;
-      border-radius: 50%;
+      flex-shrink: 0; width: 46px; height: 46px; border-radius: 50%;
       background: conic-gradient(rgba(0,0,0,0.75) 360deg, rgba(0,0,0,0.12) 360deg);
-      display: flex; align-items: center; justify-content: center;
-      position: relative;
+      display: flex; align-items: center; justify-content: center; position: relative;
     }
     .timer::before { content: ''; position: absolute; width: 78%; height: 78%; background: linear-gradient(135deg, #ffb74d, #e65100); border-radius: 50%; }
     .timer span { position: relative; z-index: 1; font-size: 18px; font-weight: 900; color: #000; }
@@ -65,282 +47,316 @@
     .bstat .lbl { font-size: 9px; font-weight: 700; color: rgba(0,0,0,0.5); text-transform: uppercase; letter-spacing: 0.6px; display: block; }
     .bstat .val { font-size: 20px; font-weight: 900; color: #000; line-height: 1.1; }
 
-    /* MAIN: ocupa todo el espacio restante */
-    .main {
-      flex: 1;
-      min-height: 0;        /* crítico: permite que los hijos se encojan */
-      display: flex;
-      flex-direction: row;
-      align-items: stretch; /* los hijos se estiran a la altura completa */
-    }
+    /* MAIN */
+    .main { flex: 1; min-height: 0; display: flex; flex-direction: row; align-items: stretch; }
 
-    /* PANEL DE LETRAS
-       — vertical: 2 columnas, altura = 100% del .main
-       — horizontal: 1 columna, más angosto */
     .letters-panel {
-      flex-shrink: 0;
-      /* height heredada del flex padre via align-items:stretch */
-      display: grid;
-      align-content: stretch; /* las filas llenan la altura */
-      padding: 5px;
-      gap: 4px;
-      /* VERTICAL por defecto */
-      grid-template-columns: repeat(2, 1fr);
-      width: 26vw;
-      min-width: 72px;
-      max-width: 120px;
+      flex-shrink: 0; display: grid; align-content: stretch; padding: 5px; gap: 4px;
+      grid-template-columns: repeat(2, 1fr); width: 26vw; min-width: 72px; max-width: 120px;
     }
     @media (orientation: landscape) {
-      .letters-panel {
-        grid-template-columns: 1fr;
-        width: clamp(44px, 8vw, 66px);
-        gap: 3px;
-      }
+      .letters-panel { grid-template-columns: 1fr; width: clamp(44px, 8vw, 66px); gap: 3px; }
     }
-
     .letter-btn {
-      background: #252525;
-      border: 2px solid rgba(255,152,0,0.5);
-      border-radius: 7px;
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 900;
-      font-size: clamp(14px, 4.5vw, 24px);
-      cursor: pointer;
-      transition: transform 0.1s;
-      -webkit-tap-highlight-color: transparent;
-      /* SIN aspect-ratio — el alto lo define el grid */
+      background: #252525; border: 2px solid rgba(255,152,0,0.5); border-radius: 7px;
+      display: flex; align-items: center; justify-content: center; font-weight: 900;
+      font-size: clamp(14px, 4.5vw, 24px); cursor: pointer; transition: transform 0.1s;
     }
-    @media (orientation: landscape) {
-      .letter-btn { font-size: clamp(11px, 2.4vh, 17px); }
-    }
+    @media (orientation: landscape) { .letter-btn { font-size: clamp(11px, 2.4vh, 17px); } }
     .letter-btn:active { transform: scale(0.86); }
     .letter-btn.pressed { animation: pop 0.18s ease-out; }
     @keyframes pop { 55%{ transform: scale(1.12); } 100%{ transform: scale(1); } }
     .letter-btn.used { background: #1a1a1a; border-color: #2a2a2a; color: #3a3a3a; text-decoration: line-through; cursor: not-allowed; transform: none !important; }
 
     /* ÁREA DERECHA */
-    .right-area {
-      flex: 1; min-width: 0;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      padding: 14px 16px; gap: 14px;
-    }
+    .right-area { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 14px 16px; position: relative; overflow-y: auto; }
+    
+    /* SETUP */
+    .setup-container { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 12px; }
+    .setup-title { font-size: 20px; font-weight: 800; text-align: center; color: var(--accent); }
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; background: #1e1e1e; padding: 10px 12px; border-radius: 10px; }
+    .toggle-row label { font-size: 13px; color: #ccc; }
+    .switch { position: relative; width: 36px; height: 18px; } .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; inset: 0; background: #333; transition: .2s; border-radius: 18px; }
+    .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 2px; bottom: 2px; background: #fff; transition: .2s; border-radius: 50%; }
+    .switch input:checked + .slider { background: var(--success); } .switch input:checked + .slider:before { transform: translateX(18px); }
+
+    .input-group { display: flex; gap: 6px; }
+    .input-group input { flex: 1; padding: 10px; border: 2px solid var(--accent); border-radius: 10px; background: #1e1e1e; color: #fff; font-size: 14px; outline: none; }
+    .input-group input:disabled { opacity: 0.4; }
+    .input-group button { padding: 0 14px; background: var(--accent); color: #000; border: none; border-radius: 10px; font-weight: 800; cursor: pointer; }
+
+    .players-list { background: #1e1e1e; border-radius: 10px; padding: 6px; max-height: 140px; overflow-y: auto; }
+    .player-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; margin-bottom: 5px; border-radius: 8px; background: rgba(255,255,255,0.03); }
+    .player-item .name { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 500; }
+    .player-item .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .player-item .remove { background: var(--danger); color: #fff; border: none; width: 22px; height: 22px; border-radius: 50%; cursor: pointer; font-size: 12px; }
+
+    .mode-toggle { display: flex; background: #1e1e1e; border-radius: 10px; padding: 3px; margin-top: 2px; }
+    .mode-toggle button { flex: 1; padding: 9px; border: none; background: transparent; color: #888; border-radius: 8px; font-weight: 700; cursor: pointer; }
+    .mode-toggle button.active { background: var(--accent); color: #000; }
+
+    .btn-start { width: 100%; padding: 13px; background: var(--success); color: #000; border: none; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; margin-top: 4px; position: sticky; bottom: 12px; box-shadow: 0 4px 10px rgba(105,240,174,0.3); }
+    .btn-start:disabled { background: #333; color: #666; box-shadow: none; cursor: not-allowed; }
+
+    /* GAME PREVIEW */
     .tema-big { text-align: center; }
     .tema-big .pre { font-size: 11px; font-weight: 700; color: rgba(255,152,0,0.7); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 6px; }
     .tema-big .nombre { font-size: clamp(26px, 8vw, 44px); font-weight: 900; color: var(--accent); line-height: 1.1; }
     .tema-big .desc { font-size: 12px; color: #555; margin-top: 8px; line-height: 1.5; }
-    .btn-start {
-      width: 100%; max-width: 260px;
-      padding: 14px;
-      background: var(--success); color: #000;
-      border: none; border-radius: 13px;
-      font-size: 16px; font-weight: 800;
-      cursor: pointer; transition: transform 0.1s;
-    }
-    .btn-start:active { transform: scale(0.97); }
+    .btn-play { width: 100%; max-width: 240px; padding: 13px; background: var(--success); color: #000; border: none; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; }
 
     /* MODAL */
     .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); align-items: center; justify-content: center; z-index: 100; padding: 16px; touch-action: manipulation; }
     .modal.active { display: flex; }
-    .modal-box { background: #1e1e1e; padding: 20px 22px; border-radius: 20px; max-width: 320px; width: 100%; text-align: center; border: 2px solid var(--accent); animation: mIn 0.25s ease-out; }
+    .modal-box { background: #1e1e1e; padding: 18px 20px; border-radius: 20px; max-width: 320px; width: 100%; text-align: center; border: 2px solid var(--accent); animation: mIn 0.25s ease-out; }
     @keyframes mIn { from{ transform: scale(0.86); opacity: 0; } }
-    .modal-box h2 { font-size: 26px; margin-bottom: 6px; }
+    .modal-box h2 { font-size: 24px; margin-bottom: 5px; }
     .modal-box p  { color: #888; font-size: 13px; }
-    .score-box { background: rgba(255,152,0,0.13); padding: 13px; border-radius: 11px; margin: 12px 0; }
+    .score-box { background: rgba(255,152,0,0.13); padding: 12px; border-radius: 11px; margin: 10px 0; }
     .score-box .slbl { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px; }
-    .score-box .big  { font-size: 34px; font-weight: 900; display: block; }
-    .rec-msg { color: var(--success); font-weight: 700; font-size: 13px; display: none; margin-top: 4px; }
-    .modal-actions { display: flex; gap: 8px; margin-top: 12px; }
-    .modal-actions button { flex: 1; padding: 11px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px; touch-action: manipulation; }
+    .score-box .big  { font-size: 32px; font-weight: 900; display: block; }
+    .rec-msg { color: var(--success); font-weight: 700; font-size: 12px; display: none; margin-top: 4px; }
+    .modal-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .modal-actions button { flex: 1; padding: 10px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 13px; }
     .btn-restart { background: var(--accent); color: #000; }
     .btn-close   { background: #3a3a3a; color: #fff; }
+    .btn-end { background: var(--danger); color: #fff; }
+
+    /* 🖥️ HORIZONTAL */
+    @media (orientation: landscape) and (max-height: 600px) {
+      .right-area { padding: 10px 14px; }
+      .setup-container { max-width: 260px; }
+      .btn-start { bottom: 8px; }
+    }
   </style>
 </head>
 <body>
 
   <div class="banner">
     <div class="banner-tema">
-      <span class="sub">🎯 Temática</span>
+      <span class="sub" id="bannerLabel">🎯 Temática</span>
       <h1 id="categoria">¡LISTOS?</h1>
     </div>
     <div class="timer" id="timer"><span id="timer-text">5</span></div>
-    <div class="bstat"><span class="lbl">Letras</span><span class="val" id="score">0</span></div>
-    <div class="bstat"><span class="lbl">Récord</span><span class="val" id="record">0</span></div>
+    <div class="bstat"><span class="lbl" id="stat1Lbl">Letras</span><span class="val" id="score">0</span></div>
+    <div class="bstat"><span class="lbl" id="stat2Lbl">Récord</span><span class="val" id="record">0</span></div>
   </div>
 
   <div class="main">
     <div class="letters-panel" id="lettersPanel"></div>
     <div class="right-area" id="rightArea">
-      <div class="tema-big">
-        <span class="pre">próxima temática</span>
-        <div class="nombre" id="temaPreview">—</div>
-        <div class="desc">Nombrá algo de esa categoría<br>por cada letra que presionés</div>
+      <!-- SETUP -->
+      <div class="setup-container" id="setupScreen">
+        <div class="setup-title">⚙️ Configuración</div>
+        <div class="toggle-row">
+          <label for="nameToggle">Usar nombres</label>
+          <label class="switch"><input type="checkbox" id="nameToggle" checked><span class="slider"></span></label>
+        </div>
+        <div class="input-group">
+          <input type="text" id="playerInput" placeholder="Nombre del jugador" maxlength="14" />
+          <button onclick="addPlayer()">+</button>
+        </div>
+        <div class="players-list" id="playersList"></div>
+        <div class="mode-toggle">
+          <button id="modeRandom" class="active" onclick="setMode('random')">🎲 Aleatorio</button>
+          <button id="modeSeq" onclick="setMode('sequential')">🔢 Secuencial</button>
+        </div>
+        <button class="btn-start" id="btnStart" onclick="goToPreview()" disabled>▶️ COMENZAR</button>
       </div>
-      <button class="btn-start" onclick="iniciarJuego()">▶️ INICIAR JUEGO</button>
+
+      <!-- PREVIEW -->
+      <div id="gamePreview" style="display:none; width:100%; text-align:center;">
+        <div class="tema-big">
+          <span class="pre">Próxima temática</span>
+          <div class="nombre" id="temaPreview">—</div>
+          <div class="desc">Nombrá algo de esa categoría<br>por cada letra que presionés</div>
+        </div>
+        <button class="btn-play" style="margin-top:16px;" onclick="iniciarPartida()">🎮 JUGAR</button>
+      </div>
     </div>
   </div>
 
   <div class="modal" id="modal">
     <div class="modal-box">
-      <h2>¡BOOM! 💥</h2>
-      <p>Se acabó el tiempo ⏱️</p>
+      <h2 id="modalTitle">💥 ¡Tiempo!</h2>
+      <p id="modalMsg">Ronda finalizada</p>
       <div class="score-box">
-        <span class="slbl">Tu puntaje</span>
-        <span class="big" id="finalScore">0 ✨</span>
+        <span class="slbl" id="modalScoreLbl">Puntaje</span>
+        <span class="big" id="finalScore">0</span>
         <span class="rec-msg" id="recordMsg">🎉 ¡Nuevo récord!</span>
       </div>
+      <div class="next-player" id="nextDisplay" style="margin:8px 0; font-weight:bold;"></div>
       <div class="modal-actions">
-        <button class="btn-close"   onclick="cerrarModal()">Salir</button>
-        <button class="btn-restart" onclick="reiniciarDesdeModal()">Otra vez</button>
+        <button class="btn-close" onclick="cerrarModal()">Salir</button>
+        <button class="btn-restart" id="btnNext" onclick="nextTurn()">Continuar</button>
       </div>
     </div>
   </div>
 
   <script>
-    const ABECEDARIO = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split('');
-    const CATEGORIAS = ["FRUTAS","PAÍSES","ANIMALES","MARCAS","PELÍCULAS","COLORES","OBJETOS DE COCINA","NOMBRES","DEPORTES","CANTANTES"];
-    const TIEMPO_TOTAL = 5;
+    const ABC = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split('');
+    const CATS = ["FRUTAS","PAÍSES","ANIMALES","MARCAS","PELÍCULAS","COLORES","COCINA","NOMBRES","DEPORTES","CANTANTES"];
+    const TIME = 5;
+    const COLORS = ['var(--p1)','var(--p2)','var(--p3)','var(--p4)','var(--p5)','var(--p6)'];
 
-    let wakeLock = null;
-    async function solicitarWakeLock() { if ('wakeLock' in navigator) try { wakeLock = await navigator.wakeLock.request('screen'); } catch {} }
-    async function liberarWakeLock()   { if (wakeLock) { await wakeLock.release(); wakeLock = null; } }
-    document.addEventListener('visibilitychange', async () => { if (wakeLock && document.visibilityState==='visible') await solicitarWakeLock(); });
+    let players=[], mode='random', order=[], turnIdx=0, round=1, isMulti=false;
+    let used=[], cat="", timeLeft=TIME, pts=0, timerInt=null, active=false;
+    let useNames=true, record=parseInt(localStorage.getItem('lf_record'))||0;
+    let proxCat='';
 
-    let audioCtx = null;
-    function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); if (audioCtx.state==='suspended') audioCtx.resume(); }
-    function playTone(f,t,d,v=0.1) {
-      if (!audioCtx) return;
-      const o=audioCtx.createOscillator(), g=audioCtx.createGain();
-      o.type=t; o.frequency.setValueAtTime(f,audioCtx.currentTime);
-      g.gain.setValueAtTime(v,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+d);
-      o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+d);
+    const $setup=document.getElementById('setupScreen'), $preview=document.getElementById('gamePreview'),
+          $right=document.getElementById('rightArea'), $list=document.getElementById('playersList'),
+          $input=document.getElementById('playerInput'), $btn=document.getElementById('btnStart'),
+          $toggle=document.getElementById('nameToggle'), $bannerLabel=document.getElementById('bannerLabel'),
+          $cat=document.getElementById('categoria'), $score=document.getElementById('score'),
+          $record=document.getElementById('record'), $timer=document.getElementById('timer'),
+          $tText=document.getElementById('timer-text'), $previewCat=document.getElementById('temaPreview'),
+          $modal=document.getElementById('modal'), $mTitle=document.getElementById('modalTitle'),
+          $mMsg=document.getElementById('modalMsg'), $mScoreLbl=document.getElementById('modalScoreLbl'),
+          $final=document.getElementById('finalScore'), $recMsg=document.getElementById('recordMsg'),
+          $next=document.getElementById('nextDisplay'), $btnNext=document.getElementById('btnNext');
+
+    $record.textContent=record;
+    sortearCat(); renderLetras();
+
+    $toggle.addEventListener('change', e=>{
+      useNames=e.target.checked; $input.disabled=!useNames;
+      $input.placeholder=useNames?"Nombre del jugador":"Jugador "+(players.length+1);
+    });
+    $input.addEventListener('keypress', e=>e.key==='Enter' && addPlayer());
+
+    function setMode(m){mode=m; document.getElementById('modeRandom').classList.toggle('active',m==='random'); document.getElementById('modeSeq').classList.toggle('active',m==='sequential');}
+
+    function addPlayer(){
+      if(players.length>=6)return;
+      const n=useNames?$input.value.trim():`Jugador ${players.length+1}`;
+      if(useNames&&(!n||players.some(p=>p.name.toLowerCase()===n.toLowerCase())))return;
+      players.push({id:Date.now(),name:n,pts:0,color:COLORS[players.length%6]});
+      renderList(); if(useNames)$input.value=''; $btn.disabled=players.length<1;
     }
-    const SFX = {
-      tick:      ()=>playTone(800,'square',0.04,0.05),
-      tickAlert: ()=>playTone(1000,'square',0.03,0.08),
-      success:   ()=>{ playTone(523,'sine',0.1,0.15); setTimeout(()=>playTone(659,'sine',0.12,0.15),60); },
-      boom:      ()=>playTone(150,'sawtooth',0.4,0.25),
-      start:     ()=>{ playTone(440,'sine',0.1,0.1); setTimeout(()=>playTone(554,'sine',0.1,0.1),100); setTimeout(()=>playTone(659,'sine',0.15,0.1),200); }
-    };
-
-    let letrasUsadas=[], tiempoRestante=TIEMPO_TOTAL, juegoActivo=false, puntaje=0, timerInterval=null;
-    let record = parseInt(localStorage.getItem('lf_record'))||0;
-    let proxCategoria = '';
-
-    const categoriaEl=document.getElementById('categoria'), scoreEl=document.getElementById('score'),
-          recordEl=document.getElementById('record'), timerEl=document.getElementById('timer'),
-          timerTextEl=document.getElementById('timer-text'), rightArea=document.getElementById('rightArea'),
-          modal=document.getElementById('modal'), finalScoreEl=document.getElementById('finalScore'),
-          recordMsgEl=document.getElementById('recordMsg');
-
-    recordEl.textContent = record;
-    sortearProxima();
-    renderLetras();
-
-    function sortearProxima() {
-      proxCategoria = CATEGORIAS[Math.floor(Math.random()*CATEGORIAS.length)];
-      const el = document.getElementById('temaPreview');
-      if (el) el.textContent = proxCategoria;
-    }
-
-    function renderLetras() {
-      const panel = document.getElementById('lettersPanel');
-      panel.innerHTML = '';
-      ABECEDARIO.forEach(letra => {
-        const el = document.createElement('div');
-        el.className = 'letter-btn';
-        el.textContent = letra;
-        el.dataset.letra = letra;
-        el.onclick = () => presionarLetra(letra);
-        el.ontouchstart = (e) => { e.preventDefault(); presionarLetra(letra); };
-        panel.appendChild(el);
-      });
+    function removePlayer(id){players=players.filter(p=>p.id!==id);renderList();$btn.disabled=players.length<1;}
+    function renderList(){
+      $list.innerHTML=players.map((p,i)=>`<div class="player-item"><span class="name"><span class="dot" style="background:${p.color}"></span>${i+1}. ${p.name}</span><button class="remove" onclick="removePlayer(${p.id})">×</button></div>`).join('');
     }
 
-    function actualizarLetras() {
-      document.querySelectorAll('.letter-btn').forEach(el => {
-        el.classList.toggle('used', letrasUsadas.includes(el.dataset.letra));
-      });
+    function sortearCat(){proxCat=CATS[Math.floor(Math.random()*CATS.length)]; $previewCat.textContent=proxCat;}
+    function renderLetras(){
+      const p=document.getElementById('lettersPanel'); p.innerHTML='';
+      ABC.forEach(l=>{const t=document.createElement('div'); t.className='letter-btn'; t.textContent=l; t.dataset.l=l; t.onclick=()=>tap(l); t.ontouchstart=e=>{e.preventDefault();tap(l);}; p.appendChild(t);});
     }
+    function actualizarLetras(){document.querySelectorAll('.letter-btn').forEach(t=>t.classList.toggle('used',used.includes(t.dataset.l)));}
 
-    async function iniciarJuego() {
+    function goToPreview(){
+      isMulti=players.length>1;
+      $setup.style.display='none'; $preview.style.display='block'; sortearCat();
       initAudio();
-      await solicitarWakeLock();
-      SFX.start();
-      letrasUsadas = []; puntaje = 0;
-      categoriaEl.textContent = proxCategoria;
-      scoreEl.textContent = 0;
-      juegoActivo = true;
-      rightArea.innerHTML = '';
-      actualizarLetras();
-      reiniciarTemporizador();
     }
 
-    function reiniciarTemporizador() {
-      clearInterval(timerInterval);
-      tiempoRestante = TIEMPO_TOTAL;
-      actualizarTimerUI();
-      timerInterval = setInterval(()=>{
-        tiempoRestante--;
-        actualizarTimerUI();
-        if (tiempoRestante<=2 && tiempoRestante>0) { timerEl.classList.add('urgent'); SFX.tickAlert(); if(navigator.vibrate)navigator.vibrate(50); }
+    async function iniciarPartida(){
+      genOrder(); turnIdx=0; round=1;
+      await reqWake(); SFX.start();
+      $preview.style.display='none'; $setup.style.display='none';
+      $bannerLabel.textContent=isMulti?"🎯 Turno de":"🎯 Temática";
+      startTurn();
+    }
+
+    function genOrder(){order=[...players]; if(mode==='random'){for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]];}}}
+    function getCur(){return order[turnIdx];}
+    function getNext(){return order[(turnIdx+1)%order.length];}
+
+    function startTurn(){
+      const p=getCur(); used=[]; pts=0; cat=CATS[Math.floor(Math.random()*CATS.length)]; timeLeft=TIME; active=true;
+      if(isMulti){
+        $cat.textContent=cat; $bannerLabel.textContent="🎯 Turno de";
+        $cat.style.color=p.color; $score.parentElement.parentElement.style.opacity=1;
+        $score.textContent=p.pts; $record.textContent=`Ronda ${round}`;
+      } else {
+        $cat.textContent=cat; $bannerLabel.textContent="🎯 Temática";
+        $cat.style.color='var(--accent)'; $score.textContent=0; $record.textContent=`Ronda ${round}`;
+      }
+      actualizarLetras(); startTimer();
+    }
+
+    function startTimer(){
+      clearInterval(timerInt); timeLeft=TIME; updateTimerUI();
+      timerInt=setInterval(()=>{
+        timeLeft--; updateTimerUI();
+        if(timeLeft<=2&&timeLeft>0){$timer.classList.add('urgent');SFX.tickAlert();if(navigator.vibrate)navigator.vibrate(50);}
         else SFX.tick();
-        if (tiempoRestante<=0) finalizarJuego();
-      }, 1000);
+        if(timeLeft<=0)endRound();
+      },1000);
+    }
+    function updateTimerUI(){
+      $tText.textContent=timeLeft; const deg=(timeLeft/TIME)*360, a=timeLeft<=2?1:timeLeft<=3?0.85:0.7;
+      $timer.style.background=`conic-gradient(rgba(0,0,0,${a}) ${deg}deg, rgba(0,0,0,0.12) ${deg}deg)`;
+      if(timeLeft>2)$timer.classList.remove('urgent');
     }
 
-    function actualizarTimerUI() {
-      timerTextEl.textContent = tiempoRestante;
-      const deg=(tiempoRestante/TIEMPO_TOTAL)*360, a=tiempoRestante<=2?1:tiempoRestante<=3?0.85:0.7;
-      timerEl.style.background=`conic-gradient(rgba(0,0,0,${a}) ${deg}deg, rgba(0,0,0,0.12) ${deg}deg)`;
-      if (tiempoRestante>2) timerEl.classList.remove('urgent');
-    }
-
-    function presionarLetra(letra) {
-      if (!juegoActivo || letrasUsadas.includes(letra)) return;
+    function tap(l){
+      if(!active||used.includes(l))return;
       SFX.success(); if(navigator.vibrate)navigator.vibrate(18);
-      letrasUsadas.push(letra); puntaje++; scoreEl.textContent=puntaje;
-      actualizarLetras();
-      const el=document.querySelector(`.letter-btn[data-letra="${letra}"]`);
-      if(el){el.classList.add('pressed');setTimeout(()=>el.classList.remove('pressed'),180);}
-      reiniciarTemporizador();
+      used.push(l); pts++; $score.textContent=isMulti?getCur().pts+pts:pts; actualizarLetras();
+      const t=document.querySelector(`.letter-btn[data-l="${l}"]`);
+      if(t){t.classList.add('pressed');setTimeout(()=>t.classList.remove('pressed'),180);}
+      startTimer();
     }
 
-    async function finalizarJuego() {
-      clearInterval(timerInterval); juegoActivo=false;
-      await liberarWakeLock(); SFX.boom(); if(navigator.vibrate)navigator.vibrate([100,50,100]);
-      if(puntaje>record){record=puntaje;localStorage.setItem('lf_record',record);recordEl.textContent=record;recordMsgEl.style.display='block';}
-      else recordMsgEl.style.display='none';
-      finalScoreEl.textContent=`${puntaje} ✨`;
-      modal.classList.add('active');
+    async function endRound(){
+      if(!active)return; clearInterval(timerInt); active=false;
+      SFX.boom(); if(navigator.vibrate)navigator.vibrate([100,50,100]);
+      if(isMulti) getCur().pts+=pts;
+      
+      $mMsg.textContent=isMulti?`+${pts} pts para ${getCur().name}`:`Puntaje ronda: ${pts}`;
+      $mScoreLbl.textContent=isMulti?"Puntaje del jugador":"Puntaje total";
+      
+      if(isMulti){
+        const n=getNext();
+        $next.innerHTML=`➡️ Sigue: <span style="color:${n.color}">${n.name}</span>`;
+        $btnNext.textContent=(turnIdx===order.length-1)?`🔄 Ronda ${round+1}`:'Continuar';
+      } else {
+        const total=players[0].pts+pts;
+        $next.innerHTML=`📊 Total acumulado: <span style="color:${players[0].color}">${total}</span>`;
+        $btnNext.textContent='🔄 Siguiente ronda';
+      }
+      
+      $final.textContent=isMulti?getCur().pts+pts:pts;
+      if(!isMulti && pts>record){record=pts;localStorage.setItem('lf_record',record);$record.textContent=record;$recMsg.style.display='block';}
+      else $recMsg.style.display='none';
+      
+      $modal.classList.add('active');
     }
 
-    function restaurarRightArea() {
-      sortearProxima();
-      rightArea.innerHTML=`
-        <div class="tema-big">
-          <span class="pre">próxima temática</span>
-          <div class="nombre">${proxCategoria}</div>
-          <div class="desc">Nombrá algo de esa categoría<br>por cada letra que presionés</div>
-        </div>
-        <button class="btn-start" onclick="iniciarJuego()">▶️ INICIAR JUEGO</button>`;
+    function skipTurn(){if(active)endRound();}
+    function nextTurn(){
+      $modal.classList.remove('active');
+      turnIdx=(turnIdx+1)%order.length;
+      if(turnIdx===0)round++;
+      if(players[0]) players[0].pts+= (isMulti?0:pts); // acumula en solitario si se quiere
+      playTone(300,'sine',0.15,0.1); setTimeout(()=>playTone(400,'sine',0.15,0.1),100);
+      startTurn();
     }
 
-    function cerrarModal() {
-      modal.classList.remove('active');
-      timerEl.classList.remove('urgent');
-      timerEl.style.background=`conic-gradient(rgba(0,0,0,0.7) 360deg, rgba(0,0,0,0.12) 360deg)`;
-      categoriaEl.textContent='¡LISTOS?';
-      letrasUsadas=[]; actualizarLetras();
-      restaurarRightArea();
+    function cerrarModal(){
+      $modal.classList.remove('active');
+      $timer.classList.remove('urgent'); $timer.style.background=`conic-gradient(rgba(0,0,0,0.7) 360deg, rgba(0,0,0,0.12) 360deg)`;
+      $cat.textContent='¡LISTOS?'; $cat.style.color='#000'; $bannerLabel.textContent='🎯 Temática';
+      $preview.style.display='block'; $setup.style.display='flex'; sortearCat();
+      if(isMulti){ $score.textContent=players[0].pts; $record.textContent="Ronda 1"; }
+      else { $score.textContent=0; $record.textContent=record; }
     }
 
-    function reiniciarDesdeModal() { cerrarModal(); iniciarJuego(); }
+    // AUDIO & WAKE
+    let ac; function initAudio(){if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();}
+    function playTone(f,t,d,v=0.1){if(!ac)return;const o=ac.createOscillator(),g=ac.createGain();o.type=t;o.frequency.setValueAtTime(f,ac.currentTime);g.gain.setValueAtTime(v,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+d);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+d);}
+    const SFX={tick:()=>playTone(800,'square',0.04,0.05),tickAlert:()=>playTone(1000,'square',0.03,0.08),success:()=>{playTone(523,'sine',0.1,0.15);setTimeout(()=>playTone(659,'sine',0.12,0.15),60);},boom:()=>playTone(150,'sawtooth',0.4,0.25),start:()=>{playTone(440,'sine',0.1,0.1);setTimeout(()=>playTone(554,'sine',0.1,0.1),100);setTimeout(()=>playTone(659,'sine',0.15,0.1),200);}};
+    let wl=null; async function reqWake(){if('wakeLock'in navigator)try{wl=await navigator.wakeLock.request('screen');}catch{}}
+    async function relWake(){if(wl){await wl.release();wl=null;}}
+    document.addEventListener('visibilitychange',async()=>{if(wl&&document.visibilityState==='visible')await reqWake();});
 
-    document.addEventListener('keydown',(e)=>{ if(!juegoActivo)return; const l=e.key.toUpperCase(); if(ABECEDARIO.includes(l))presionarLetra(l); });
-    let lastTap=0;
-    document.addEventListener('touchend',(e)=>{ const now=Date.now(); if(now-lastTap<=300)e.preventDefault(); lastTap=now; },false);
-    document.addEventListener('touchmove',(e)=>{ if(juegoActivo)e.preventDefault(); },{passive:false});
+    document.addEventListener('keydown',e=>{if(!active)return;const l=e.key.toUpperCase();if(ABC.includes(l))tap(l);});
+    let lt=0; document.addEventListener('touchend',e=>{const n=Date.now();if(n-lt<=300)e.preventDefault();lt=n;},false);
+    document.addEventListener('touchmove',e=>{if(active)e.preventDefault();},{passive:false});
   </script>
 </body>
 </html>
