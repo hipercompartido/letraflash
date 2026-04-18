@@ -53,7 +53,9 @@
     .letters-panel {
       flex-shrink: 0; display: grid; align-content: stretch; padding: 5px; gap: 4px;
       grid-template-columns: repeat(2, 1fr); width: 26vw; min-width: 72px; max-width: 120px;
+      transition: opacity 0.2s, transform 0.2s;
     }
+    .letters-panel.hidden { opacity: 0; pointer-events: none; transform: scale(0.9); width: 0; padding: 0; }
     @media (orientation: landscape) {
       .letters-panel { grid-template-columns: 1fr; width: clamp(44px, 8vw, 66px); gap: 3px; }
     }
@@ -72,7 +74,7 @@
     .right-area { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 14px 16px; position: relative; overflow-y: auto; }
     
     /* SETUP */
-    .setup-container { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 12px; }
+    .setup-container { width: 100%; max-width: 320px; display: flex; flex-direction: column; gap: 10px; }
     .setup-title { font-size: 20px; font-weight: 800; text-align: center; color: var(--accent); }
     .toggle-row { display: flex; align-items: center; justify-content: space-between; background: #1e1e1e; padding: 10px 12px; border-radius: 10px; }
     .toggle-row label { font-size: 13px; color: #ccc; }
@@ -92,19 +94,25 @@
     .player-item .dot { width: 8px; height: 8px; border-radius: 50%; }
     .player-item .remove { background: var(--danger); color: #fff; border: none; width: 22px; height: 22px; border-radius: 50%; cursor: pointer; font-size: 12px; }
 
-    .mode-toggle { display: flex; background: #1e1e1e; border-radius: 10px; padding: 3px; margin-top: 2px; }
-    .mode-toggle button { flex: 1; padding: 9px; border: none; background: transparent; color: #888; border-radius: 8px; font-weight: 700; cursor: pointer; }
-    .mode-toggle button.active { background: var(--accent); color: #000; }
+    .mode-toggle, .game-mode-toggle { display: flex; background: #1e1e1e; border-radius: 10px; padding: 3px; margin-top: 2px; }
+    .mode-toggle button, .game-mode-toggle button { flex: 1; padding: 9px; border: none; background: transparent; color: #888; border-radius: 8px; font-weight: 700; cursor: pointer; }
+    .mode-toggle button.active, .game-mode-toggle button.active { background: var(--accent); color: #000; }
 
     .btn-start { width: 100%; padding: 13px; background: var(--success); color: #000; border: none; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; margin-top: 4px; position: sticky; bottom: 12px; box-shadow: 0 4px 10px rgba(105,240,174,0.3); }
     .btn-start:disabled { background: #333; color: #666; box-shadow: none; cursor: not-allowed; }
 
-    /* GAME PREVIEW */
-    .tema-big { text-align: center; }
-    .tema-big .pre { font-size: 11px; font-weight: 700; color: rgba(255,152,0,0.7); text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 6px; }
-    .tema-big .nombre { font-size: clamp(26px, 8vw, 44px); font-weight: 900; color: var(--accent); line-height: 1.1; }
-    .tema-big .desc { font-size: 12px; color: #555; margin-top: 8px; line-height: 1.5; }
-    .btn-play { width: 100%; max-width: 240px; padding: 13px; background: var(--success); color: #000; border: none; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; }
+    /* DESAFÍO UI */
+    .desafio-ui { display: none; width: 100%; text-align: center; flex-direction: column; align-items: center; gap: 16px; }
+    .desafio-ui.active { display: flex; }
+    .desafio-letter { 
+      font-size: clamp(60px, 15vw, 100px); font-weight: 900; color: var(--accent);
+      text-shadow: 0 4px 20px rgba(255,152,0,0.4); line-height: 1;
+    }
+    .desafio-sub { font-size: 14px; color: #888; margin-top: -8px; }
+    .action-btns { display: flex; gap: 10px; width: 100%; max-width: 280px; margin-top: 8px; }
+    .btn-action { flex: 1; padding: 14px; border: none; border-radius: 12px; font-weight: 800; font-size: 15px; cursor: pointer; }
+    .btn-ok { background: var(--success); color: #000; }
+    .btn-skip { background: #333; color: #ccc; }
 
     /* MODAL */
     .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); align-items: center; justify-content: center; z-index: 100; padding: 16px; touch-action: manipulation; }
@@ -121,13 +129,13 @@
     .modal-actions button { flex: 1; padding: 10px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 13px; }
     .btn-restart { background: var(--accent); color: #000; }
     .btn-close   { background: #3a3a3a; color: #fff; }
-    .btn-end { background: var(--danger); color: #fff; }
 
     /* 🖥️ HORIZONTAL */
     @media (orientation: landscape) and (max-height: 600px) {
       .right-area { padding: 10px 14px; }
       .setup-container { max-width: 260px; }
       .btn-start { bottom: 8px; }
+      .desafio-letter { font-size: clamp(50px, 8vh, 80px); }
     }
   </style>
 </head>
@@ -162,17 +170,21 @@
           <button id="modeRandom" class="active" onclick="setMode('random')">🎲 Aleatorio</button>
           <button id="modeSeq" onclick="setMode('sequential')">🔢 Secuencial</button>
         </div>
+        <div class="game-mode-toggle">
+          <button id="gameClasico" class="active" onclick="setGameMode('clasico')">🎮 Clásico</button>
+          <button id="gameDesafio" onclick="setGameMode('desafio')">🎯 Desafío</button>
+        </div>
         <button class="btn-start" id="btnStart" onclick="goToPreview()" disabled>▶️ COMENZAR</button>
       </div>
 
-      <!-- PREVIEW -->
-      <div id="gamePreview" style="display:none; width:100%; text-align:center;">
-        <div class="tema-big">
-          <span class="pre">Próxima temática</span>
-          <div class="nombre" id="temaPreview">—</div>
-          <div class="desc">Nombrá algo de esa categoría<br>por cada letra que presionés</div>
+      <!-- DESAFÍO UI (oculta por defecto) -->
+      <div class="desafio-ui" id="desafioUI">
+        <div class="desafio-letter" id="desafioLetter">?</div>
+        <div class="desafio-sub">Nombrá algo de la temática</div>
+        <div class="action-btns">
+          <button class="btn-action btn-ok" onclick="endRound(true)">✅ ACERTÉ</button>
+          <button class="btn-action btn-skip" onclick="endRound(false)">⏭️ PASAR</button>
         </div>
-        <button class="btn-play" style="margin-top:16px;" onclick="iniciarPartida()">🎮 JUGAR</button>
       </div>
     </div>
   </div>
@@ -197,11 +209,11 @@
   <script>
     const ABC = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split('');
     const CATS = ["FRUTAS","PAÍSES","ANIMALES","MARCAS","PELÍCULAS","COLORES","COCINA","NOMBRES","DEPORTES","CANTANTES"];
-    const TIME = 5;
-    const COLORS = ['var(--p1)','var(--p2)','var(--p3)','var(--p4)','var(--p5)','var(--p6)'];
+    const TIME_MODE = { clasico: 5, desafio: 15 };
 
-    let players=[], mode='random', order=[], turnIdx=0, round=1, isMulti=false;
-    let used=[], cat="", timeLeft=TIME, pts=0, timerInt=null, active=false;
+    let players=[], mode='random', gameMode='clasico', order=[], turnIdx=0, round=1, isMulti=false;
+    let used=[], cat="", timeLeft=TIME_MODE.clasico, pts=0, timerInt=null, active=false;
+    let letraAsignada='';
     let useNames=true, record=parseInt(localStorage.getItem('lf_record'))||0;
     let proxCat='';
 
@@ -211,14 +223,15 @@
           $toggle=document.getElementById('nameToggle'), $bannerLabel=document.getElementById('bannerLabel'),
           $cat=document.getElementById('categoria'), $score=document.getElementById('score'),
           $record=document.getElementById('record'), $timer=document.getElementById('timer'),
-          $tText=document.getElementById('timer-text'), $previewCat=document.getElementById('temaPreview'),
+          $tText=document.getElementById('timer-text'), $desafioUI=document.getElementById('desafioUI'),
+          $desafioLetter=document.getElementById('desafioLetter'), $lettersPanel=document.getElementById('lettersPanel'),
           $modal=document.getElementById('modal'), $mTitle=document.getElementById('modalTitle'),
           $mMsg=document.getElementById('modalMsg'), $mScoreLbl=document.getElementById('modalScoreLbl'),
           $final=document.getElementById('finalScore'), $recMsg=document.getElementById('recordMsg'),
           $next=document.getElementById('nextDisplay'), $btnNext=document.getElementById('btnNext');
 
     $record.textContent=record;
-    sortearCat(); renderLetras();
+    renderLetras();
 
     $toggle.addEventListener('change', e=>{
       useNames=e.target.checked; $input.disabled=!useNames;
@@ -227,12 +240,13 @@
     $input.addEventListener('keypress', e=>e.key==='Enter' && addPlayer());
 
     function setMode(m){mode=m; document.getElementById('modeRandom').classList.toggle('active',m==='random'); document.getElementById('modeSeq').classList.toggle('active',m==='sequential');}
+    function setGameMode(m){gameMode=m; document.getElementById('gameClasico').classList.toggle('active',m==='clasico'); document.getElementById('gameDesafio').classList.toggle('active',m==='desafio');}
 
     function addPlayer(){
       if(players.length>=6)return;
       const n=useNames?$input.value.trim():`Jugador ${players.length+1}`;
       if(useNames&&(!n||players.some(p=>p.name.toLowerCase()===n.toLowerCase())))return;
-      players.push({id:Date.now(),name:n,pts:0,color:COLORS[players.length%6]});
+      players.push({id:Date.now(),name:n,pts:0,color:['var(--p1)','var(--p2)','var(--p3)','var(--p4)','var(--p5)','var(--p6)'][players.length%6]});
       renderList(); if(useNames)$input.value=''; $btn.disabled=players.length<1;
     }
     function removePlayer(id){players=players.filter(p=>p.id!==id);renderList();$btn.disabled=players.length<1;}
@@ -240,24 +254,27 @@
       $list.innerHTML=players.map((p,i)=>`<div class="player-item"><span class="name"><span class="dot" style="background:${p.color}"></span>${i+1}. ${p.name}</span><button class="remove" onclick="removePlayer(${p.id})">×</button></div>`).join('');
     }
 
-    function sortearCat(){proxCat=CATS[Math.floor(Math.random()*CATS.length)]; $previewCat.textContent=proxCat;}
+    function sortearCat(){proxCat=CATS[Math.floor(Math.random()*CATS.length)];}
     function renderLetras(){
-      const p=document.getElementById('lettersPanel'); p.innerHTML='';
-      ABC.forEach(l=>{const t=document.createElement('div'); t.className='letter-btn'; t.textContent=l; t.dataset.l=l; t.onclick=()=>tap(l); t.ontouchstart=e=>{e.preventDefault();tap(l);}; p.appendChild(t);});
+      $lettersPanel.innerHTML='';
+      ABC.forEach(l=>{const t=document.createElement('div'); t.className='letter-btn'; t.textContent=l; t.dataset.l=l; t.onclick=()=>tap(l); t.ontouchstart=e=>{e.preventDefault();tap(l);}; $lettersPanel.appendChild(t);});
     }
     function actualizarLetras(){document.querySelectorAll('.letter-btn').forEach(t=>t.classList.toggle('used',used.includes(t.dataset.l)));}
 
     function goToPreview(){
       isMulti=players.length>1;
-      $setup.style.display='none'; $preview.style.display='block'; sortearCat();
+      $setup.style.display='none'; 
+      sortearCat();
+      $bannerLabel.textContent="📖 Temática";
+      $cat.textContent=proxCat;
+      $cat.style.color="var(--accent)";
+      $score.textContent=0; $record.textContent="Ronda 1";
       initAudio();
     }
 
-    async function iniciarPartida(){
+    async function startGame(){
       genOrder(); turnIdx=0; round=1;
-      await reqWake(); SFX.start();
-      $preview.style.display='none'; $setup.style.display='none';
-      $bannerLabel.textContent=isMulti?"🎯 Turno de":"🎯 Temática";
+      await reqWake(); playTone(440,'sine',0.1,0.1); setTimeout(()=>playTone(554,'sine',0.1,0.1),100); setTimeout(()=>playTone(659,'sine',0.15,0.1),200);
       startTurn();
     }
 
@@ -266,95 +283,116 @@
     function getNext(){return order[(turnIdx+1)%order.length];}
 
     function startTurn(){
-      const p=getCur(); used=[]; pts=0; cat=CATS[Math.floor(Math.random()*CATS.length)]; timeLeft=TIME; active=true;
-      if(isMulti){
-        $cat.textContent=cat; $bannerLabel.textContent="🎯 Turno de";
-        $cat.style.color=p.color; $score.parentElement.parentElement.style.opacity=1;
-        $score.textContent=p.pts; $record.textContent=`Ronda ${round}`;
+      const p=getCur();
+      cat = CATS[Math.floor(Math.random()*CATS.length)];
+      $cat.textContent=cat;
+      
+      if(gameMode==='clasico'){
+        $lettersPanel.classList.remove('hidden'); $desafioUI.classList.remove('active');
+        $bannerLabel.textContent=isMulti?"🎯 Turno de":"🎯 Temática";
+        $bannerLabel.style.color='#000';
+        $score.textContent=isMulti?p.pts:0; $record.textContent=`Ronda ${round}`;
+        used=[]; pts=0; timeLeft=TIME_MODE.clasico; active=true;
+        actualizarLetras(); startTimer();
       } else {
-        $cat.textContent=cat; $bannerLabel.textContent="🎯 Temática";
-        $cat.style.color='var(--accent)'; $score.textContent=0; $record.textContent=`Ronda ${round}`;
+        $lettersPanel.classList.add('hidden'); $desafioUI.classList.add('active');
+        $bannerLabel.textContent="🎯";
+        // Asignar letra aleatoria
+        letraAsignada = ABC[Math.floor(Math.random()*ABC.length)];
+        $desafioLetter.textContent = letraAsignada;
+        $cat.textContent = `${p.name} : Letra ${letraAsignada}`;
+        $cat.style.color = p.color;
+        $bannerLabel.textContent = `${p.name} : Letra ${letraAsignada}`;
+        $score.textContent = isMulti?p.pts:0; $record.textContent=`Ronda ${round}`;
+        pts=0; timeLeft=TIME_MODE.desafio; active=true;
+        startTimer();
       }
-      actualizarLetras(); startTimer();
     }
 
     function startTimer(){
-      clearInterval(timerInt); timeLeft=TIME; updateTimerUI();
+      clearInterval(timerInt); timeLeft=TIME_MODE[gameMode]; updateTimerUI();
       timerInt=setInterval(()=>{
         timeLeft--; updateTimerUI();
-        if(timeLeft<=2&&timeLeft>0){$timer.classList.add('urgent');SFX.tickAlert();if(navigator.vibrate)navigator.vibrate(50);}
-        else SFX.tick();
-        if(timeLeft<=0)endRound();
+        if(timeLeft<=3&&timeLeft>0){$timer.classList.add('urgent');playTone(1000,'square',0.03,0.08);if(navigator.vibrate)navigator.vibrate(50);}
+        else playTone(800,'square',0.04,0.05);
+        if(timeLeft<=0)endRound(false);
       },1000);
     }
     function updateTimerUI(){
-      $tText.textContent=timeLeft; const deg=(timeLeft/TIME)*360, a=timeLeft<=2?1:timeLeft<=3?0.85:0.7;
+      $tText.textContent=timeLeft; 
+      const maxTime=TIME_MODE[gameMode];
+      const deg=(timeLeft/maxTime)*360;
+      const a=timeLeft<=3?1:timeLeft<=Math.ceil(maxTime*0.6)?0.85:0.7;
       $timer.style.background=`conic-gradient(rgba(0,0,0,${a}) ${deg}deg, rgba(0,0,0,0.12) ${deg}deg)`;
-      if(timeLeft>2)$timer.classList.remove('urgent');
+      if(timeLeft>3)$timer.classList.remove('urgent');
     }
 
     function tap(l){
       if(!active||used.includes(l))return;
-      SFX.success(); if(navigator.vibrate)navigator.vibrate(18);
+      playTone(523,'sine',0.1,0.15); setTimeout(()=>playTone(659,'sine',0.12,0.15),60);
       used.push(l); pts++; $score.textContent=isMulti?getCur().pts+pts:pts; actualizarLetras();
       const t=document.querySelector(`.letter-btn[data-l="${l}"]`);
       if(t){t.classList.add('pressed');setTimeout(()=>t.classList.remove('pressed'),180);}
       startTimer();
     }
 
-    async function endRound(){
+    async function endRound(acerto){
       if(!active)return; clearInterval(timerInt); active=false;
-      SFX.boom(); if(navigator.vibrate)navigator.vibrate([100,50,100]);
-      if(isMulti) getCur().pts+=pts;
+      playTone(150,'sawtooth',0.4,0.25); if(navigator.vibrate)navigator.vibrate([100,50,100]);
       
-      $mMsg.textContent=isMulti?`+${pts} pts para ${getCur().name}`:`Puntaje ronda: ${pts}`;
-      $mScoreLbl.textContent=isMulti?"Puntaje del jugador":"Puntaje total";
+      let ptsAsumidos = acerto ? 1 : 0;
+      if(gameMode==='clasico') ptsAsumidos = pts; // En clásico suma todo lo presionado
+      
+      if(isMulti) getCur().pts += ptsAsumidos;
+      
+      $mMsg.textContent = gameMode==='clasico' 
+        ? `+${ptsAsumidos} pts para ${getCur().name}`
+        : (acerto ? `✅ ¡Correcto! +1 pt` : `⏱️ Tiempo o pasó`);
+      $mScoreLbl.textContent=isMulti?"Puntaje del jugador":"Puntaje ronda";
       
       if(isMulti){
         const n=getNext();
         $next.innerHTML=`➡️ Sigue: <span style="color:${n.color}">${n.name}</span>`;
         $btnNext.textContent=(turnIdx===order.length-1)?`🔄 Ronda ${round+1}`:'Continuar';
       } else {
-        const total=players[0].pts+pts;
+        const total = isMulti ? players[0].pts : (gameMode==='clasico'?pts:players[0].pts+(acerto?1:0));
         $next.innerHTML=`📊 Total acumulado: <span style="color:${players[0].color}">${total}</span>`;
         $btnNext.textContent='🔄 Siguiente ronda';
       }
       
-      $final.textContent=isMulti?getCur().pts+pts:pts;
-      if(!isMulti && pts>record){record=pts;localStorage.setItem('lf_record',record);$record.textContent=record;$recMsg.style.display='block';}
+      $final.textContent=ptsAsumidos;
+      if(!isMulti && gameMode==='clasico' && pts>record){record=pts;localStorage.setItem('lf_record',record);$record.textContent=record;$recMsg.style.display='block';}
       else $recMsg.style.display='none';
       
       $modal.classList.add('active');
     }
 
-    function skipTurn(){if(active)endRound();}
     function nextTurn(){
       $modal.classList.remove('active');
       turnIdx=(turnIdx+1)%order.length;
       if(turnIdx===0)round++;
-      if(players[0]) players[0].pts+= (isMulti?0:pts); // acumula en solitario si se quiere
       playTone(300,'sine',0.15,0.1); setTimeout(()=>playTone(400,'sine',0.15,0.1),100);
       startTurn();
     }
 
     function cerrarModal(){
       $modal.classList.remove('active');
-      $timer.classList.remove('urgent'); $timer.style.background=`conic-gradient(rgba(0,0,0,0.7) 360deg, rgba(0,0,0,0.12) 360deg)`;
-      $cat.textContent='¡LISTOS?'; $cat.style.color='#000'; $bannerLabel.textContent='🎯 Temática';
-      $preview.style.display='block'; $setup.style.display='flex'; sortearCat();
-      if(isMulti){ $score.textContent=players[0].pts; $record.textContent="Ronda 1"; }
-      else { $score.textContent=0; $record.textContent=record; }
+      $timer.classList.remove('urgent'); 
+      $timer.style.background=`conic-gradient(rgba(0,0,0,0.7) 360deg, rgba(0,0,0,0.12) 360deg)`;
+      $cat.textContent='¡LISTOS?'; $cat.style.color='#000'; $bannerLabel.textContent='📖 Temática';
+      $setup.style.display='flex'; sortearCat();
+      $score.textContent=0; $record.textContent=record;
+      $lettersPanel.classList.remove('hidden'); $desafioUI.classList.remove('active');
     }
 
     // AUDIO & WAKE
     let ac; function initAudio(){if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();}
     function playTone(f,t,d,v=0.1){if(!ac)return;const o=ac.createOscillator(),g=ac.createGain();o.type=t;o.frequency.setValueAtTime(f,ac.currentTime);g.gain.setValueAtTime(v,ac.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+d);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+d);}
-    const SFX={tick:()=>playTone(800,'square',0.04,0.05),tickAlert:()=>playTone(1000,'square',0.03,0.08),success:()=>{playTone(523,'sine',0.1,0.15);setTimeout(()=>playTone(659,'sine',0.12,0.15),60);},boom:()=>playTone(150,'sawtooth',0.4,0.25),start:()=>{playTone(440,'sine',0.1,0.1);setTimeout(()=>playTone(554,'sine',0.1,0.1),100);setTimeout(()=>playTone(659,'sine',0.15,0.1),200);}};
     let wl=null; async function reqWake(){if('wakeLock'in navigator)try{wl=await navigator.wakeLock.request('screen');}catch{}}
     async function relWake(){if(wl){await wl.release();wl=null;}}
     document.addEventListener('visibilitychange',async()=>{if(wl&&document.visibilityState==='visible')await reqWake();});
 
-    document.addEventListener('keydown',e=>{if(!active)return;const l=e.key.toUpperCase();if(ABC.includes(l))tap(l);});
+    document.addEventListener('keydown',e=>{if(!active)return;const l=e.key.toUpperCase();if(ABC.includes(l)&&gameMode==='clasico')tap(l);});
     let lt=0; document.addEventListener('touchend',e=>{const n=Date.now();if(n-lt<=300)e.preventDefault();lt=n;},false);
     document.addEventListener('touchmove',e=>{if(active)e.preventDefault();},{passive:false});
   </script>
