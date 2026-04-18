@@ -6,6 +6,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <meta name="theme-color" content="#121212"/>
+  <!-- ✅ Favicon integrado (sin 404) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
   <title>LetraFlash 🎮</title>
   <style>
     :root {
@@ -50,6 +52,10 @@
 
     .idle-title { font-size: clamp(28px, 8vw, 40px); font-weight: 900; color: var(--accent); text-align: center; margin-bottom: 8px; }
     .idle-sub { color: var(--text-dim); text-align: center; font-size: 14px; line-height: 1.6; }
+    .idle-cat { 
+      margin-top: 12px; padding: 8px 16px; background: rgba(255,152,0,0.15); 
+      border-radius: 12px; font-size: 18px; font-weight: 700; color: var(--accent); 
+    }
 
     .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(6px, 2vw, 10px); width: 100%; max-width: 420px; aspect-ratio: 1 / 1; max-height: 100%; padding: 8px; }
     .tile { background: var(--surface-light); border: 2px solid rgba(255,152,0,0.4); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: clamp(16px, 5vw, 24px); font-weight: 900; cursor: pointer; transition: transform 0.12s; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
@@ -138,13 +144,18 @@
     </header>
 
     <main class="stage">
+      <!-- PANTALLA IDLE (antes de empezar) -->
       <div id="idleScreen" class="screen">
         <div class="idle-title">LetraFlash ⚡</div>
         <div class="idle-sub">Tocá ⚙️ para configurar jugadores<br>y empezar la partida</div>
+        <div class="idle-cat">Próxima: <span id="idleCat">FRUTAS</span></div>
       </div>
 
+      <!-- PANTALLA DE JUEGO -->
       <div id="gameScreen" class="screen hidden">
+        <!-- MODO CLÁSICO: grilla de letras -->
         <div id="clasicoView" class="grid"></div>
+        <!-- MODO DESAFÍO: una letra grande + botones -->
         <div id="desafioView" class="desafio-wrap hidden">
           <div class="desafio-letter" id="desafioLetter">?</div>
           <div class="desafio-sub">Nombrá algo de la temática</div>
@@ -208,15 +219,19 @@
   </div>
 
   <script>
+    // ⚙️ CONFIGURACIÓN
     const ABC = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split('');
     const CATS = ["FRUTAS","PAÍSES","ANIMALES","MARCAS","PELÍCULAS","COLORES","COCINA","NOMBRES","DEPORTES","CANTANTES"];
     const TIME = { clasico: 5, desafio: 15 };
     const COLORS = ['var(--p1)','var(--p2)','var(--p3)','var(--p4)','var(--p5)','var(--p6)'];
 
-    let players=[], mode='random', gMode='clasico', order=[], tIdx=0, round=1, isMulti=false;
-    let used=[], cat="", timeLeft=TIME.clasico, pts=0, tInt=null, active=false, letraAsig='';
-    let useNames=true, record=parseInt(localStorage.getItem('lf_record'))||0;
+    // 🎮 ESTADO
+    let players = [], mode = 'random', gMode = 'clasico', order = [], tIdx = 0, round = 1, isMulti = false;
+    let used = [], cat = "", timeLeft = TIME.clasico, pts = 0, tInt = null, active = false, letraAsig = '';
+    let useNames = true, record = parseInt(localStorage.getItem('lf_record')) || 0;
+    let nextCat = CATS[Math.floor(Math.random() * CATS.length)];
 
+    // 🖥️ ELEMENTOS DOM
     const el = {
       bannerLbl: document.getElementById('bannerLabel'), bannerTxt: document.getElementById('bannerText'), 
       timer: document.getElementById('timer'), tText: document.getElementById('timerText'),
@@ -224,41 +239,30 @@
       s2: document.getElementById('s2val'), s2l: document.getElementById('s2lbl'),
       idle: document.getElementById('idleScreen'), game: document.getElementById('gameScreen'), 
       clasico: document.getElementById('clasicoView'), desafio: document.getElementById('desafioView'),
-      dLetter: document.getElementById('desafioLetter'), setModal: document.getElementById('settingsModal'), 
-      playersList: document.getElementById('playersList'), input: document.getElementById('playerInput'), 
-      btnStart: document.getElementById('btnStart'), resModal: document.getElementById('resultsModal'),
-      resMsg: document.getElementById('resMsg'), resScore: document.getElementById('resScore'), 
-      resRec: document.getElementById('resRec'), resNext: document.getElementById('resNext'), 
-      resBtn: document.getElementById('resBtn')
+      dLetter: document.getElementById('desafioLetter'), idleCat: document.getElementById('idleCat'),
+      setModal: document.getElementById('settingsModal'), playersList: document.getElementById('playersList'), 
+      input: document.getElementById('playerInput'), btnStart: document.getElementById('btnStart'), 
+      resModal: document.getElementById('resultsModal'), resMsg: document.getElementById('resMsg'), 
+      resScore: document.getElementById('resScore'), resRec: document.getElementById('resRec'), 
+      resNext: document.getElementById('resNext'), resBtn: document.getElementById('resBtn')
     };
 
+    // ✅ INICIALIZACIÓN
     el.s2.textContent = record;
+    el.idleCat.textContent = nextCat;
     renderGrid();
 
-    // Configuración
+    // ⚙️ CONFIGURACIÓN
     document.getElementById('nameToggle').addEventListener('change', e => { 
       useNames = e.target.checked; 
       el.input.disabled = !useNames; 
       el.input.placeholder = useNames ? "Nombre del jugador" : "Jugador " + (players.length + 1); 
     });
 
-    function openSettings() { 
-      if(active) return; 
-      el.setModal.classList.add('active'); 
-    }
-    function closeSettings() { 
-      el.setModal.classList.remove('active'); 
-    }
-    function setMode(m) { 
-      mode = m; 
-      document.getElementById('mRandom').classList.toggle('active', m==='random'); 
-      document.getElementById('mSeq').classList.toggle('active', m==='sequential'); 
-    }
-    function setGameMode(m) { 
-      gMode = m; 
-      document.getElementById('gClasico').classList.toggle('active', m==='clasico'); 
-      document.getElementById('gDesafio').classList.toggle('active', m==='desafio'); 
-    }
+    function openSettings() { if(active) return; el.setModal.classList.add('active'); }
+    function closeSettings() { el.setModal.classList.remove('active'); }
+    function setMode(m) { mode = m; document.getElementById('mRandom').classList.toggle('active', m==='random'); document.getElementById('mSeq').classList.toggle('active', m==='sequential'); }
+    function setGameMode(m) { gMode = m; document.getElementById('gClasico').classList.toggle('active', m==='clasico'); document.getElementById('gDesafio').classList.toggle('active', m==='desafio'); }
 
     function addPlayer() {
       if(players.length >= 6) return;
@@ -269,18 +273,14 @@
       if(useNames) el.input.value = '';
       el.btnStart.disabled = players.length < 1;
     }
-    window.removePlayer = id => { 
-      players = players.filter(p => p.id !== id); 
-      renderPlayers(); 
-      el.btnStart.disabled = players.length < 1; 
-    };
+    window.removePlayer = id => { players = players.filter(p => p.id !== id); renderPlayers(); el.btnStart.disabled = players.length < 1; };
     function renderPlayers() {
       el.playersList.innerHTML = players.map((p,i) => 
         `<div class="player-item"><span class="name"><span class="dot" style="background:${p.color}"></span>${i+1}. ${p.name}</span><button class="remove" onclick="removePlayer(${p.id})">×</button></div>`
       ).join('');
     }
 
-    // Juego
+    // 🎮 LÓGICA DEL JUEGO
     function startGame() {
       closeSettings();
       isMulti = players.length > 1;
@@ -300,34 +300,65 @@
     function startTurn() {
       const p = order[tIdx];
       cat = CATS[Math.floor(Math.random() * CATS.length)];
+      
       if(gMode === 'clasico') {
-        el.bannerLbl.textContent = "🎯 Temática"; el.bannerTxt.textContent = cat; el.bannerTxt.style.color = 'var(--accent)';
-        el.s1l.textContent = isMulti ? "Puntos Totales" : "Letras"; el.s2l.textContent = "Ronda";
-        el.s1.textContent = isMulti ? p.pts : 0; el.s2.textContent = round;
-        el.clasico.classList.remove('hidden'); el.desafio.classList.add('hidden');
-        used = []; pts = 0; timeLeft = TIME.clasico; renderGrid(); updateTiles();
+        // === MODO CLÁSICO ===
+        // Tocá letras → decí palabra de la temática → cada letra suma 1 pt y REINICIA timer
+        el.bannerLbl.textContent = "🎯 Temática"; 
+        el.bannerTxt.textContent = cat; 
+        el.bannerTxt.style.color = 'var(--accent)';
+        el.s1l.textContent = isMulti ? "Puntos Totales" : "Letras"; 
+        el.s2l.textContent = "Ronda";
+        el.s1.textContent = isMulti ? p.pts : 0; 
+        el.s2.textContent = round;
+        el.clasico.classList.remove('hidden'); 
+        el.desafio.classList.add('hidden');
+        used = []; pts = 0; timeLeft = TIME.clasico; 
+        renderGrid(); updateTiles();
       } else {
+        // === MODO DESAFÍO ===
+        // La app te da UNA letra aleatoria. Tenés 15s para pensar una palabra.
+        // ✅ ACERTÉ = +1 pt / ⏭️ PASAR = 0 pts
         letraAsig = ABC[Math.floor(Math.random() * ABC.length)];
         el.bannerLbl.textContent = isMulti ? "🎯 Turno de" : "🎯 Letra";
         el.bannerTxt.textContent = isMulti ? `${p.name} : Letra ${letraAsig}` : `Letra ${letraAsig}`;
         el.bannerTxt.style.color = p.color;
-        el.s1l.textContent = isMulti ? "Puntos Totales" : "Puntos"; el.s2l.textContent = "Ronda";
-        el.s1.textContent = isMulti ? p.pts : 0; el.s2.textContent = round;
-        el.desafio.classList.remove('hidden'); el.clasico.classList.add('hidden');
-        el.dLetter.textContent = letraAsig; pts = 0; timeLeft = TIME.desafio;
+        el.s1l.textContent = isMulti ? "Puntos Totales" : "Puntos"; 
+        el.s2l.textContent = "Ronda";
+        el.s1.textContent = isMulti ? p.pts : 0; 
+        el.s2.textContent = round;
+        el.desafio.classList.remove('hidden'); 
+        el.clasico.classList.add('hidden');
+        el.dLetter.textContent = letraAsig; 
+        pts = 0; timeLeft = TIME.desafio;
       }
       startTimer();
     }
 
     function startTimer() {
-      clearInterval(tInt); timeLeft = TIME[gMode]; updateTimerUI();
+      clearInterval(tInt); 
+      timeLeft = TIME[gMode]; 
+      updateTimerUI();
+      
       tInt = setInterval(() => {
-        timeLeft--; updateTimerUI();
-        if(timeLeft <= 3 && timeLeft > 0) { el.timer.classList.add('urgent'); playTone(1000,'square',0.03,0.08); if(navigator.vibrate) navigator.vibrate(50); }
-        else { playTone(800,'square',0.04,0.05); }
-        if(timeLeft <= 0) endRound(gMode === 'clasico');
+        // ✅ GUARD: si ya terminó, no seguir decrementando
+        if(timeLeft <= 0) {
+          clearInterval(tInt);
+          endRound(gMode === 'clasico');
+          return;
+        }
+        timeLeft--; 
+        updateTimerUI();
+        if(timeLeft <= 3 && timeLeft > 0) { 
+          el.timer.classList.add('urgent'); 
+          playTone(1000,'square',0.03,0.08); 
+          if(navigator.vibrate) navigator.vibrate(50); 
+        } else { 
+          playTone(800,'square',0.04,0.05); 
+        }
       }, 1000);
     }
+
     function updateTimerUI() {
       el.tText.textContent = timeLeft; 
       const max = TIME[gMode], deg = (timeLeft / max) * 360, a = timeLeft <= 3 ? 1 : timeLeft <= Math.ceil(max * 0.6) ? 0.8 : 0.6;
@@ -338,13 +369,17 @@
     function tap(l) { 
       if(!active || used.includes(l)) return; 
       playTone(523,'sine',0.1,0.15); setTimeout(()=>playTone(659,'sine',0.12,0.15),60);
-      used.push(l); pts++; el.s1.textContent = isMulti ? order[tIdx].pts + pts : pts; 
+      used.push(l); pts++; 
+      el.s1.textContent = isMulti ? order[tIdx].pts + pts : pts; 
       updateTiles();
       const t = document.querySelector(`.tile[data-l="${l}"]`); 
       if(t) { t.classList.add('pressed'); setTimeout(()=>t.classList.remove('pressed'),160); } 
+      // ✅ REINICIAR TIMER al tocar letra válida
       startTimer(); 
     }
+    
     function updateTiles() { document.querySelectorAll('.tile').forEach(t => t.classList.toggle('used', used.includes(t.dataset.l))); }
+    
     function renderGrid() { 
       el.clasico.innerHTML = ''; 
       ABC.forEach(l => {
@@ -358,10 +393,13 @@
       if(!active) return; 
       clearInterval(tInt); active = false; 
       playTone(150,'sawtooth',0.4,0.25); if(navigator.vibrate) navigator.vibrate([100,50,100]);
+      
+      // Calcular puntos: en clásico = letras tocadas, en desafío = 1 si acertó
       let suma = gMode === 'clasico' ? pts : (ok ? 1 : 0);
       if(isMulti) order[tIdx].pts += suma;
       
       el.resMsg.textContent = gMode === 'clasico' ? `+${suma} pts para ${order[tIdx].name}` : (ok ? '✅ ¡Correcto! +1 pt' : '⏱️ Tiempo o pasó');
+      
       if(isMulti) {
         const n = order[(tIdx + 1) % order.length];
         el.resNext.innerHTML = `➡️ Sigue: <span style="color:${n.color}">${n.name}</span>`;
@@ -371,7 +409,9 @@
         el.resBtn.textContent = '🔄 Siguiente ronda';
       }
       el.resScore.textContent = suma;
-      if(!isMulti && gMode === 'clasico' && suma > record) { record = suma; localStorage.setItem('lf_record', record); el.s2.textContent = record; el.resRec.style.display = 'block'; } else { el.resRec.style.display = 'none'; }
+      if(!isMulti && gMode === 'clasico' && suma > record) { 
+        record = suma; localStorage.setItem('lf_record', record); el.s2.textContent = record; el.resRec.style.display = 'block'; 
+      } else { el.resRec.style.display = 'none'; }
       el.resModal.classList.add('active');
     };
 
@@ -387,9 +427,11 @@
       el.game.classList.add('hidden'); el.idle.classList.remove('hidden');
       el.bannerLbl.textContent = "📖 Temática"; el.bannerTxt.textContent = "¡LISTOS?"; el.bannerTxt.style.color = 'var(--accent)';
       el.s1.textContent = 0; el.s2.textContent = record;
+      nextCat = CATS[Math.floor(Math.random() * CATS.length)];
+      el.idleCat.textContent = nextCat;
     };
 
-    // Audio & Wake Lock
+    // 🔊 AUDIO & 🔥 WAKE LOCK
     let ac; function initAudio(){ if(!ac) ac = new(window.AudioContext||window.webkitAudioContext)(); if(ac.state==='suspended') ac.resume(); }
     function playTone(f,t,d,v=0.1){ if(!ac) return; const o=ac.createOscillator(),g=ac.createGain(); o.type=t; o.frequency.setValueAtTime(f,ac.currentTime); g.gain.setValueAtTime(v,ac.currentTime); g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+d); o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime+d); }
     let wl=null; async function reqWake(){ if('wakeLock'in navigator) try{ wl=await navigator.wakeLock.request('screen'); }catch{} } 
